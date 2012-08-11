@@ -13,6 +13,10 @@ var StackedGraph = function(elem, series, options) {
 	this.ymin = 0;
 	this.ymax = options.ymax || this.getMaxY(series);
 	this.x = LinearTransform.fromTwoPoints({ x: this.xmin, y: 0}, { x: this.xmax, y: this.width });
+	var minZoomFactor = options.minZoomFactor || 1/10;
+	var maxZoomFactor = options.minZoomFactor || series[0].points.length;
+	this.minZoom = minZoomFactor * this.x.k();
+	this.maxZoom = maxZoomFactor * this.x.k();
 	this.y = new LinearTransform( -this.height/this.ymax, +this.height);
 	this.series = series;
 	this.activeSeries = null;
@@ -32,6 +36,7 @@ var StackedGraph = function(elem, series, options) {
 
 	this.initZoom();
 	this.initPan();
+	this.initHighlightTracking();
 };
 
 StackedGraph.prototype.createCanvas = function(parent, width, height){
@@ -77,7 +82,8 @@ StackedGraph.prototype.initZoom = function(){
 	this.elem.addEventListener(this.mousewheelevent, function(e){
 		var zoomFactor = this.zoomFactorFromMouseDelta(e.wheelDelta);
         var xval = this.x.invert(e.x-this.offsetLeft);
-        this.x.multiplySlopeAtPoint(zoomFactor, xval);
+        var slope = Math.min( Math.max(zoomFactor * this.x.k(), this.minZoom), this.maxZoom);
+        this.x.setSlopeAtPoint(slope, xval);
         this.draw();
         e.preventDefault();
 	}.bind(this));
@@ -108,6 +114,16 @@ StackedGraph.prototype.initPan = function() {
 	};
 
 	return this.elem.addEventListener('mousedown', panDown);
+};
+
+StackedGraph.prototype.initHighlightTracking = function(){
+	this.elem.addEventListener('mousemove', this.highlightMouseMove.bind(this));
+};
+StackedGraph.prototype.highlightMouseMove = function(e){
+
+};
+StackedGraph.prototype.stopHighlightTracking = function(){
+
 };
 
 StackedGraph.prototype.zoomFactorFromMouseDelta = function(delta){ return delta / 180 + 1; };
@@ -141,12 +157,13 @@ StackedGraph.prototype.toPixels = function(points, offsets){
 
 StackedGraph.prototype.draw = function(){
 	var pixelSeriesArr = [], pixelSeries = [];
+
 	for(var i = 0; i<this.series.length; i++){
 		var series = this.series[i];
 		pixelSeries = this.toPixels(series.points, pixelSeries);
 		pixelSeriesArr.push({ color: series.color, points: pixelSeries });
 	}
-
+	this.pixelSeriesArr = pixelSeriesArr;
 	this.canvasRenderer.draw( pixelSeriesArr );
 };
 

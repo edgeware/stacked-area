@@ -35,10 +35,10 @@ LinearTransform.prototype.invert = function(y) {
   return (y - this._l) / this._k;
 };
 
-LinearTransform.prototype.multiplySlopeAtPoint = function(slopeFactor, x) {
+LinearTransform.prototype.setSlopeAtPoint = function(slope, x) {
   var k0, k1, l0, l1;
   k0 = this._k;
-  k1 = slopeFactor * k0;
+  k1 = slope;
   l0 = this._l;
   l1 = k0 * x + l0 - k1 * x;
   this._k = k1;

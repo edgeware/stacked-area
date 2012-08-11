@@ -10,14 +10,18 @@ CanvasRenderer.prototype.clear = function(){
 };
 
 CanvasRenderer.prototype.draw = function(seriesArr){
+	//# timer start drawing_series
+	var drawingStart = performance.webkitNow();
 	this.clear();
 
 	for(var i=0;i<seriesArr.length;i++){
 		var series = seriesArr[i];
 		this.drawSeries(series.points, series.color);
 	}
+	//# timer end drawing_series
+	var time = performance.webkitNow() - drawingStart;
+	//console.log('drawing time', time);
 };
-
 CanvasRenderer.prototype.drawSeries = function(points, color){
 	var point;
 	if(!points.length) return;
@@ -28,6 +32,7 @@ CanvasRenderer.prototype.drawSeries = function(points, color){
 
 	for(var i = 0; i<points.length; i++){
 		point = points[i];
+		
 		if(i+1<points.length && points[i+1].x<0){
 			continue;
 		}

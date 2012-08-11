@@ -1,18 +1,15 @@
-var constructSeries = function(name, timestamps, values){
+var zipPoints = function(seqX, seqY){
 	var points = [];
-	for(var i = 0; i<timestamps.length; i++){
-		var timestamp = timestamps[i];
-		var value = values[i];
+	for(var i = 0; i<seqX.length; i++){
+		var x = seqX[i];
+		var y = seqY[i];
 
 		points.push({
-			x: timestamp,
-			y: value
+			x: x,
+			y: y
 		});
 	}
-	return {
-		name: name,
-		points: points
-	};
+	return points;
 };
 
 var extractSeries = function(metrics, baseMetric){
@@ -24,13 +21,15 @@ var extractSeries = function(metrics, baseMetric){
 	var series = [];
 	for(var i = 0; i<subMetricNames.length; i++){
 		var name = subMetricNames[i];
-		var s = constructSeries(name, timestamps, metrics.metrics[name]); 
-		s.color = "hsl(210,97%," + (95 -(i+1)*30) + "%)";
-		series.push( s );
+		series.push({
+			name: name,
+			color: "hsl(210,97%," + (95 -(i+1)*30) + "%)",
+			points: zipPoints( timestamps, metrics.metrics[name] )
+		});
 	}
 
 	return series;
 };
 
 module.exports = extractSeries;
-module.exports.constructSeries = constructSeries;
+module.exports.zipPoints = zipPoints;
