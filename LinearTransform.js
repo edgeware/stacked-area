@@ -1,0 +1,50 @@
+function LinearTransform(k, l) {
+  this._k = k;
+  this._l = l;
+}
+
+LinearTransform.fromTwoPoints = function(p0, p1){
+  var k = (p1.y-p0.y)/(p1.x -p0.x);
+  var l = p1.y - k * p1.x;
+  return new LinearTransform(k, l);
+};
+
+LinearTransform.prototype._k = 1;
+
+LinearTransform.prototype._l = 0;
+
+LinearTransform.prototype.k = function(factor) {
+  if (!factor) {
+    return this._k;
+  }
+  return this._k = factor;
+};
+
+LinearTransform.prototype.l = function(offset) {
+  if (!offset) {
+    return this._l;
+  }
+  return this._l = offset;
+};
+
+LinearTransform.prototype.map = function(x) {
+  return this._k * x + this._l;
+};
+
+LinearTransform.prototype.invert = function(y) {
+  return (y - this._l) / this._k;
+};
+
+LinearTransform.prototype.multiplySlopeAtPoint = function(slopeFactor, x) {
+  var k0, k1, l0, l1;
+  k0 = this._k;
+  k1 = slopeFactor * k0;
+  l0 = this._l;
+  l1 = k0 * x + l0 - k1 * x;
+  this._k = k1;
+  return this._l = l1;
+};
+
+module.exports = LinearTransform;
+
+module.exports = LinearTransform;

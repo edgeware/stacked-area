@@ -1,0 +1,12 @@
+{
+  "name": "stackedgraph",
+  "version": "0.0.0",
+  "description": "A simple canvas based stacked area graph",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": "",
+  "author": "Karl Böhlmark",
+  "license": "BSD"
+}
