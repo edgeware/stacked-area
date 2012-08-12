@@ -1,10 +1,11 @@
 var LinearTransform = require('./LinearTransform');
 var CanvasRenderer = require('./CanvasRenderer');
-
+var Emitter = require('./Emitter');
 /*
  * series = [{ name: 'disk_usage', points: [{x: 1343123112, y:13000 }]}]
  * */
 var StackedGraph = function(elem, series, options) {
+	Emitter.call(this);
 	this.elem = elem;
 	this.width = options.width || elem.clientWidth;
 	this.height = options.height || elem.clientHeight;
@@ -17,11 +18,12 @@ var StackedGraph = function(elem, series, options) {
 	var maxZoomFactor = options.minZoomFactor || series[0].points.length;
 	this.minZoom = minZoomFactor * this.x.k();
 	this.maxZoom = maxZoomFactor * this.x.k();
-	this.y = new LinearTransform( -this.height/this.ymax, +this.height);
+	this.y = new LinearTransform( -this.height/this.ymax, this.height);
 	this.series = series;
 	this.activeSeries = null;
 	this.canvas = this.createCanvas(elem, this.width, this.height);
 	this.offsetLeft = this.canvas.offsetLeft;
+	this.offsetTop = this.canvas.offsetTop;
 	this.canvasRenderer = new CanvasRenderer(
 		this.canvas,
 		series,
@@ -38,6 +40,8 @@ var StackedGraph = function(elem, series, options) {
 	this.initPan();
 	this.initHighlightTracking();
 };
+
+StackedGraph.prototype = Object.create(Emitter.prototype);
 
 StackedGraph.prototype.createCanvas = function(parent, width, height){
 	var canvas = document.createElement('canvas');
@@ -117,35 +121,90 @@ StackedGraph.prototype.initPan = function() {
 };
 
 StackedGraph.prototype.initHighlightTracking = function(){
-	this.elem.addEventListener('mousemove', this.highlightMouseMove.bind(this));
+	this.canvas.addEventListener('mousemove', this.highlightMouseMove.bind(this));
+	var _this = this;
+	this.on('value', function(value){
+		console.log('Current hoovering over series '+ _this.activeSeriesIndex.toString() + ' which has value:' + value);
+	});
 };
 StackedGraph.prototype.highlightMouseMove = function(e){
+	var x = e.x - this.offsetLeft;
+	var y = e.y - this.offsetTop;
 
+	var seriesIndex = this.getSeriesIndexFromPoint(x, y);
+	console.log('series index', seriesIndex);
+	this.activeSeriesIndex = seriesIndex;
+	var value = this.getValueOfSeriesAtPoint(seriesIndex, x);
+
+	this.trigger('value', value);
 };
 StackedGraph.prototype.stopHighlightTracking = function(){
 
 };
 
+StackedGraph.prototype.getValueOfSeriesAtPoint = function(i, x){
+	var xval = this.x.invert(x);
+	var series = this.series[i || 0];
+	var points = series.points;
+	var low = 0;
+	var high = points.length-1;
+	var val;
+	var c = 0;
+	console.log('v', x, xval);
+	while(typeof val === 'undefined'){
+		c++;
+		var next = Math.floor((high + low)/2);
+		var point = points[next];
+		if(!point)console.log('no point at index',next);
+		
+		console.log(point, this.x.map(point.x));
+
+		if(point.x<xval){
+			low = next;
+		}
+		if(point.x>xval){
+			high = next;
+		}
+		if((high - low)<=2){
+			return point.y;
+		}else{
+			if(low!=next && high!=next){
+				console.log('error');
+			}
+		}
+		if(c>15) {
+			return console.log('infinite loop');
+		}
+	}
+};
+
+StackedGraph.prototype.getSeriesIndexFromPoint = function(x, y){
+	for(var i = this.pixelSeriesArr.length-1; i>=0; i--){
+		var series = this.pixelSeriesArr[i];
+		for(var j = 0; j<series.points.length; j++){
+			var point = series.points[j];
+			if(point.x>x){
+				if(j>1) point = series.points[j-1];
+				if(point.y<y){
+					return i;
+				}
+				break;
+			}
+		}
+	}
+	console.log('point not in series');
+	return null;
+};
+
 StackedGraph.prototype.zoomFactorFromMouseDelta = function(delta){ return delta / 180 + 1; };
-/*
-if(i+1<points.length && points[i+1].x<0){
-			continue;
-		}
-		if(i-1>=0 && points[i-1].x>this.width){
-			continue;
-		}
-*/
 
 StackedGraph.prototype.toPixels = function(points, offsets){
 	var pixelPoints = [], prevX=0;
 	for(var i = 0; i<points.length; i++){
-		//if(prevX>this.width) continue;
-		
 		var point = points[i];
 		var offset = offsets[i];
 		var x = this.x.map(point.x);
 		
-		//if(x<0 && i>0 && this.x.map(points[i-1].x<0)) continue;
 		pixelPoints.push({
 			x: this.x.map(point.x),
 			y: this.y.map(point.y + (offset? offset.y:0))
