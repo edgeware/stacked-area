@@ -2,7 +2,7 @@ var test = require('tap').test;
 
 var metrics = require('../testData/metrics');
 var metricAdapter = require('../metricAdapter');
-
+/*
 test('can construct series from timestamps and values', function(t){
 	var timestamp1 = new Date();
 	var timestamp2 = new Date();
@@ -29,6 +29,7 @@ test('can construct series from timestamps and values', function(t){
 
 	t.end();
 });
+*/
 
 test("can extract submetric series from basemetric", function(t){
 	var basemetric = 'net_in';

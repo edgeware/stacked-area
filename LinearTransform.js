@@ -14,14 +14,14 @@ LinearTransform.prototype._k = 1;
 LinearTransform.prototype._l = 0;
 
 LinearTransform.prototype.k = function(factor) {
-  if (!factor) {
+  if (typeof factor === 'undefined') {
     return this._k;
   }
   return this._k = factor;
 };
 
 LinearTransform.prototype.l = function(offset) {
-  if (!offset) {
+  if (typeof offset === 'undefined') {
     return this._l;
   }
   return this._l = offset;

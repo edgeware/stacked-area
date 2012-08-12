@@ -14,8 +14,8 @@ CanvasRenderer.prototype.draw = function(seriesArr){
 	var drawingStart = performance.webkitNow();
 	this.clear();
 
-	for(var i=0;i<seriesArr.length;i++){
-		var series = seriesArr[i];
+	for(var i=seriesArr.length;i;i--){
+		var series = seriesArr[i-1];
 		this.drawSeries(series.points, series.color);
 	}
 	//# timer end drawing_series
