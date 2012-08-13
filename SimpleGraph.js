@@ -7,11 +7,12 @@ var GraphData = require('./GraphData');
  * */
 var StackedGraph = function(elem, series, options) {
 	Emitter.call(this);
+	this.options = options;
+	console.log('init graph', options.name);
 	this.elem = elem;
 	this.width = options.width || elem.clientWidth;
 	this.height = options.height || elem.clientHeight;
 	
-	this.data = new GraphData(series, { x: this.width, y: this.height }, options);
 	this.canvas = this.createCanvas(elem, this.width, this.height);
 	this.offsetLeft = this.canvas.offsetLeft;
 	this.offsetTop = this.canvas.offsetTop;
@@ -30,9 +31,21 @@ var StackedGraph = function(elem, series, options) {
 	this.initZoom();
 	this.initPan();
 	this.initHighlightTracking();
+	if(series && Array.isArray(series) && series.length>0){
+		this.data = new GraphData(series, { x: this.width, y: this.height }, options);
+		this.draw();
+	}else{
+		console.warn('initialize StackedGraph without data');
+	}
 };
 
 StackedGraph.prototype = Object.create(Emitter.prototype);
+StackedGraph.prototype.constructor = StackedGraph;
+
+StackedGraph.prototype.getValue = function(x){
+	return 0;
+	return this.data.getValue(x);
+};
 
 StackedGraph.prototype.createCanvas = function(parent, width, height){
 	var canvas = document.createElement('canvas');
@@ -85,10 +98,10 @@ StackedGraph.prototype.initPan = function() {
 
 StackedGraph.prototype.initHighlightTracking = function(){
 	this.canvas.addEventListener('mousemove', this.highlightMouseMove.bind(this));
-	var _this = this, data = this.data;
+	var _this = this;
 	this.on('value', function(value){
 		if(value.series){
-			if(data.highlightSeries(value.series)){
+			if(_this.data.highlightSeries(value.series)){
 				_this.draw();
 			}
 		}
@@ -103,13 +116,15 @@ StackedGraph.prototype.highlightMouseMove = function(e){
 
 	this.trigger('value', pointValue);
 };
-StackedGraph.prototype.stopHighlightTracking = function(){
+
+StackedGraph.prototype.highlightRegion = function(start, stop){
 
 };
 
 StackedGraph.prototype.zoomFactorFromMouseDelta = function(delta){ return delta / 180 + 1; };
 
 StackedGraph.prototype.draw = function(){
+	console.log('draw graph', this.options.name);
 	this.canvasRenderer.draw( this.data.getPixelSeries() );
 };
 

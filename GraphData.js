@@ -1,6 +1,7 @@
 var LinearTransform = require('./LinearTransform');
 
 function GraphData(series, pixelRange, options){
+	this.options = options;
 	this.series = series;
 	this.xmin = options.xmin || this.getMinX(series);
 	this.xmax = options.xmax || this.getMaxX(series);
@@ -15,6 +16,25 @@ function GraphData(series, pixelRange, options){
 	this.minZoom = minZoomFactor * this.x.k();
 	this.maxZoom = maxZoomFactor * this.x.k();
 }
+
+GraphData.prototype.getXDomain = function(){
+	return [this.xmin, this.xmax];
+};
+
+GraphData.prototype.getXRange = function(){
+	return [0, this.pixelRange.x];
+};
+
+GraphData.prototype.getYDomain = function(){
+	return [this.ymin, this.ymax];
+};
+
+GraphData.prototype.setYDomain = function(ymin, ymax){
+	this.ymax = ymax;
+	this.ymin = ymin;
+	var ypxl = this.pixelRange.y;
+	this.y = new LinearTransform( -ypxl/this.ymax, ypxl);
+};
 
 GraphData.prototype.pan = function(offset){
 	this.x.l( this.x.l() + offset);
@@ -69,6 +89,23 @@ GraphData.prototype.highlightSeries = function(name){
 	var newHighlight = this.highlightedSeries !== name;
 	this.highlightedSeries = name;
 	return newHighlight;
+};
+
+GraphData.prototype.getValue = function(x){
+	var seriesIndex = null;
+	if(this.highlightedSeries){
+		for(var i=0;i<this.series.length;i++){
+			var series = this.series[i];
+			if(series.name === this.highlightedSeries){
+				seriesIndex = i;
+			}
+		}
+	}
+	if(seriesIndex!==null)
+		return this.getValueOfSeriesAtPoint(seriesIndex, x);
+	else
+		return this.getCombinedValueAtPoint(x);
+	return ;
 };
 
 GraphData.prototype.getMaxX = function(series /*plural*/){
@@ -167,6 +204,9 @@ GraphData.prototype.getValueOfSeriesAtPoint = function(i, x){
 };
 
 GraphData.prototype.getCombinedValueAtPoint = function(x){
+	if(!this.pixelSeriesArr){
+		console.log('call getPixelSeries');
+		this.pixelSeriesArr = this.getPixelSeries(); }
 	var points =this.pixelSeriesArr[this.pixelSeriesArr.length-1].points;
 	var index = this.findClosestXPointIndex(x, points);
 	var point = points[index];
