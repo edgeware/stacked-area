@@ -87,7 +87,7 @@ StackedGraph.prototype.initHighlightTracking = function(){
 	this.canvas.addEventListener('mousemove', this.highlightMouseMove.bind(this));
 	var _this = this;
 	this.on('value', function(value){
-		//console.log('Current hoovering over series '+ value.series + ' which has value:' + value.value);
+		console.log('Hoovering over series '+ value.series + ' which has value:' + value.value);
 	});
 };
 StackedGraph.prototype.highlightMouseMove = function(e){
