@@ -38,7 +38,9 @@ GraphData.prototype.getPixelSeries = function(){
 	for(var i = 0; i<this.series.length; i++){
 		var series = this.series[i];
 		pixelSeries = this.toPixels(series.points, pixelSeries);
-		pixelSeriesArr.push({ color: series.color, points: pixelSeries });
+		pixelSeriesArr.push({
+			color: series.name === this.highlightedSeries ? series.highlightColor: series.color,
+			points: pixelSeries });
 	}
 	this.pixelSeriesArr = pixelSeriesArr;
 	return pixelSeriesArr;
@@ -59,8 +61,14 @@ GraphData.prototype.toPixels = function(points, offsets){
 GraphData.prototype.toPixelPoint = function(point, yOffset){
 	return {
 		x: this.x.map(point.x),
-		y: this.y.map(point.y) -(yOffset? (this.pixelRange.y-yOffset) :0)
+		y: this.y.map(point.y) - (yOffset? (this.pixelRange.y - yOffset) :0)
 	};
+};
+
+GraphData.prototype.highlightSeries = function(name){
+	var newHighlight = this.highlightedSeries !== name;
+	this.highlightedSeries = name;
+	return newHighlight;
 };
 
 GraphData.prototype.getMaxX = function(series /*plural*/){

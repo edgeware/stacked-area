@@ -24,6 +24,7 @@ var extractSeries = function(metrics, baseMetric){
 		series.push({
 			name: name,
 			color: "hsl(210,97%," + (95 -(i+1)*30) + "%)",
+			highlightColor: 'red',
 			points: zipPoints( timestamps, metrics.metrics[name] )
 		});
 	}
