@@ -84,6 +84,7 @@ StackedGraph.prototype.initPan = function() {
 		data = this.data,
 		panStart;
 	var panMove = function(move) {
+		normalizeEvent(move);
 		var panOffset = move.x - panStart;
 		data.pan(panOffset - panned);
 		_this.triggerPan(data.x.l());
@@ -95,6 +96,7 @@ StackedGraph.prototype.initPan = function() {
 		return elem.removeEventListener('mouseup', panUp);
 	};
 	var panDown = function(down) {
+		normalizeEvent(down);
 		panStart = down.x;
 		panned = 0;
 		elem.addEventListener('mousemove', panMove);
