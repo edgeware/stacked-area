@@ -11,7 +11,7 @@ CanvasRenderer.prototype.clear = function(){
 
 CanvasRenderer.prototype.draw = function(seriesArr){
 	//# timer start drawing_series
-	var drawingStart = performance.webkitNow();
+	//var drawingStart = performance.webkitNow();
 	this.clear();
 
 	for(var i=seriesArr.length;i;i--){
@@ -19,7 +19,7 @@ CanvasRenderer.prototype.draw = function(seriesArr){
 		this.drawSeries(series.points, series.color);
 	}
 	//# timer end drawing_series
-	var time = performance.webkitNow() - drawingStart;
+	//var time = performance.webkitNow() - drawingStart;
 	//console.log('drawing time', time);
 };
 CanvasRenderer.prototype.drawSeries = function(points, color){
