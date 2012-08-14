@@ -17,6 +17,9 @@ var extractSeries = function(metrics, baseMetric){
 	var subMetricNames = Object.keys(metrics.metrics).filter(function(metricName){
 		return metricName.indexOf(baseMetric) !== -1 && metricName !== baseMetric;
 	});
+	if(subMetricNames.length===0){
+		subMetricNames.push(baseMetric);
+	}
 
 	var series = [];
 	for(var i = 0; i<subMetricNames.length; i++){

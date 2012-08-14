@@ -67,6 +67,7 @@ StackedGraph.prototype.initZoom = function(){
 	this.elem.addEventListener(this.mousewheelevent, function(e){
 		var zoomFactor = this.zoomFactorFromMouseDelta(e.wheelDelta);
 		this.data.zoom(zoomFactor, e.x-this.offsetLeft);
+		this.triggerZoom(zoomFactor, this.data.x.invert(e.x-this.offsetLeft));
         this.draw();
         e.preventDefault();
 	}.bind(this));
@@ -80,6 +81,7 @@ StackedGraph.prototype.initPan = function() {
 	var panMove = function(move) {
 		var panOffset = move.x - panStart;
 		data.pan(panOffset - panned);
+		_this.triggerPan(data.x.l());
 		panned += (panOffset - panned);
 		return _this.draw();
 	};
@@ -97,9 +99,42 @@ StackedGraph.prototype.initPan = function() {
 	return this.elem.addEventListener('mousedown', panDown);
 };
 
+StackedGraph.prototype.triggerPan = function(amount){
+	this.trigger('pan', amount);
+};
+
+StackedGraph.prototype.panTo = function(amount){
+	this.data.x.l(amount);
+	this.draw();
+};
+
+StackedGraph.prototype.zoom = function(amount, around){
+	this.data.zoomX(amount, around);
+	this.draw();
+};
+
+StackedGraph.prototype.triggerZoom = function(amount, around){
+	this.trigger('zoom', amount, around);
+};
+
+StackedGraph.prototype.triggerViewPortChanged = function(){
+	this.trigger('viewportchanged', { min: this.data.xmin, max: this.data.xmax });
+};
+
+StackedGraph.prototype.setViewPort = function(viewPort){
+	console.log('set viewport', viewPort);
+	this.data.setXDomain(viewPort.xmin, viewPort.xmax);
+	this.draw();
+};
+
 StackedGraph.prototype.initHighlightTracking = function(){
 	this.canvas.addEventListener('mousemove', this.highlightMouseMove.bind(this));
 	var _this = this;
+	this.canvas.addEventListener('mouseout', function(){
+		if(_this.data.highlightSeries(null)){
+			_this.draw();
+		}
+	});
 	this.on('value', function(value){
 		if(_this.data.highlightSeries(value.series)){
 			_this.draw();
@@ -123,7 +158,7 @@ StackedGraph.prototype.highlightRegion = function(start, stop){
 StackedGraph.prototype.zoomFactorFromMouseDelta = function(delta){ return delta / 180 + 1; };
 
 StackedGraph.prototype.draw = function(){
-	console.log('draw graph', this.options.name);
+	//console.log('draw graph', this.options.name);
 	this.canvasRenderer.draw( this.data.getPixelSeries() );
 };
 

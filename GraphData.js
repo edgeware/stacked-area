@@ -1,6 +1,8 @@
 var LinearTransform = require('./LinearTransform');
+var Emitter = require('./Emitter');
 
 function GraphData(series, pixelRange, options){
+	Emitter.call(this);
 	this.options = options;
 	this.series = series;
 	this.xmin = options.xmin || this.getMinX(series);
@@ -17,8 +19,18 @@ function GraphData(series, pixelRange, options){
 	this.maxZoom = maxZoomFactor * this.x.k();
 }
 
+GraphData.prototype = Object.create(Emitter.prototype);
+GraphData.prototype.constructor = GraphData;
+
 GraphData.prototype.getXDomain = function(){
 	return [this.xmin, this.xmax];
+};
+
+GraphData.prototype.setXDomain = function(xmin, xmax){
+	this.xmin = xmin;
+	this.xmax = xmax;
+
+	this.x.fromTwoPoints({ x: xmin, y:0 }, { x:xmax, y: this.pixelRange.x });
 };
 
 GraphData.prototype.getXRange = function(){
@@ -46,7 +58,11 @@ GraphData.prototype.getPanOffset=function(){
 
 GraphData.prototype.zoom = function(zoomFactor, xpxl){
 	var xval = this.x.invert(xpxl);
-    var slope = Math.min( Math.max(zoomFactor * this.x.k(), this.minZoom), this.maxZoom);
+    this.zoomX(zoomFactor, xval);
+};
+
+GraphData.prototype.zoomX  = function(zoomFactor, xval){
+	var slope = Math.min( Math.max(zoomFactor * this.x.k(), this.minZoom), this.maxZoom);
     this.x.setSlopeAtPoint(slope, xval);
 };
 

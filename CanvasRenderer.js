@@ -28,9 +28,10 @@ CanvasRenderer.prototype.drawSeries = function(points, color){
 
 	this.ctx.fillStyle = color;
 	this.ctx.beginPath();
-	this.ctx.moveTo(points[0].x, this.height);
 
-	for(var i = 0; i<points.length; i++){
+	this.ctx.moveTo(points[0].x, points[0].y);
+
+	for(var i = 1; i<points.length; i++){
 		point = points[i];
 		
 		if(i+1<points.length && points[i+1].x<0){
@@ -41,10 +42,11 @@ CanvasRenderer.prototype.drawSeries = function(points, color){
 		}
 		this.ctx.lineTo(point.x, point.y);
 	}
-
+	this.ctx.stroke();
 	this.ctx.lineTo(point.x, this.height);
+	this.ctx.lineTo(points[0].x, this.height);
+	this.ctx.lineTo(points[0].x, points[0].y);
 
-	this.ctx.closePath();
 	this.ctx.fill();
 };
 

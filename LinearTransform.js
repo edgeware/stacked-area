@@ -4,9 +4,20 @@ function LinearTransform(k, l) {
 }
 
 LinearTransform.fromTwoPoints = function(p0, p1){
+  var p = LinearTransform.parametersFromTwoPoints(p0, p1);
+  return new LinearTransform(p.k, p.l);
+};
+
+LinearTransform.parametersFromTwoPoints = function(p0, p1){
   var k = (p1.y-p0.y)/(p1.x -p0.x);
   var l = p1.y - k * p1.x;
-  return new LinearTransform(k, l);
+  return { k: k, l: l };
+};
+
+LinearTransform.prototype.fromTwoPoints = function(p0, p1){
+  var p = LinearTransform.parametersFromTwoPoints(p0, p1);
+  this.k(p.k);
+  this.l(p.l);
 };
 
 LinearTransform.prototype._k = 1;
