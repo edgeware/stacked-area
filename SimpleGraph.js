@@ -28,22 +28,23 @@ var StackedGraph = function(elem, series, options) {
 		this.configureForGecko();
 	}
 
-	this.initZoom();
-	this.initPan();
-	this.initHighlightTracking();
 	if(series && Array.isArray(series) && series.length>0){
 		this.data = new GraphData(series, { x: this.width, y: this.height }, options);
 		this.draw();
 	}else{
-		console.warn('initialize StackedGraph without data');
+		console.error('initialize StackedGraph without data');
 	}
+
+	this.initZoom();
+	this.initPan();
+	this.initHighlightTracking();
+	
 };
 
 StackedGraph.prototype = Object.create(Emitter.prototype);
 StackedGraph.prototype.constructor = StackedGraph;
 
 StackedGraph.prototype.getValue = function(x){
-	return 0;
 	return this.data.getValue(x);
 };
 
@@ -100,10 +101,8 @@ StackedGraph.prototype.initHighlightTracking = function(){
 	this.canvas.addEventListener('mousemove', this.highlightMouseMove.bind(this));
 	var _this = this;
 	this.on('value', function(value){
-		if(value.series){
-			if(_this.data.highlightSeries(value.series)){
-				_this.draw();
-			}
+		if(_this.data.highlightSeries(value.series)){
+			_this.draw();
 		}
 		//console.log('Hoovering over series '+ value.series + ' which has value:' + value.value);
 	});
