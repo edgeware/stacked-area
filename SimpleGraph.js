@@ -2,6 +2,9 @@ var LinearTransform = require('./LinearTransform');
 var CanvasRenderer = require('./CanvasRenderer');
 var Emitter = require('./Emitter');
 var GraphData = require('./GraphData');
+var normalizeEvent = require('./normalizeEvent');
+
+
 /*
  * series = [{ name: 'disk_usage', points: [{x: 1343123112, y:13000 }]}]
  * */
@@ -19,7 +22,7 @@ var StackedGraph = function(elem, series, options) {
 	this.canvasRenderer = new CanvasRenderer(
 		this.canvas,
 		series,
-		{ width: this.width, height: this.height}
+		{ width: this.width, height: this.height }
 	);
 
 	this.panOffset = 0;
@@ -58,14 +61,16 @@ StackedGraph.prototype.createCanvas = function(parent, width, height){
 
 StackedGraph.prototype.configureForGecko = function(){
 	this.mousewheelevent = 'DOMMouseScroll';
-	this.zoomFactorFromMouseDelta = function(delta){ return delta/90 + 1; };
+	this.zoomFactorFromMouseEvent = function(e){
+		return -e.detail/15 + 1; };
 };
 
 StackedGraph.prototype.mousewheelevent = 'mousewheel';
 
 StackedGraph.prototype.initZoom = function(){
 	this.elem.addEventListener(this.mousewheelevent, function(e){
-		var zoomFactor = this.zoomFactorFromMouseDelta(e.wheelDelta);
+		normalizeEvent(e);
+		var zoomFactor = this.zoomFactorFromMouseEvent(e);
 		this.data.zoom(zoomFactor, e.x-this.offsetLeft);
 		this.triggerZoom(zoomFactor, this.data.x.invert(e.x-this.offsetLeft));
         this.draw();
@@ -142,7 +147,9 @@ StackedGraph.prototype.initHighlightTracking = function(){
 		//console.log('Hoovering over series '+ value.series + ' which has value:' + value.value);
 	});
 };
+
 StackedGraph.prototype.highlightMouseMove = function(e){
+	normalizeEvent(e);
 	var x = e.x - this.offsetLeft;
 	var y = e.y - this.offsetTop;
 
@@ -155,7 +162,7 @@ StackedGraph.prototype.highlightRegion = function(start, stop){
 
 };
 
-StackedGraph.prototype.zoomFactorFromMouseDelta = function(delta){ return delta / 180 + 1; };
+StackedGraph.prototype.zoomFactorFromMouseEvent = function(e){ return e.delta / 180 + 1; };
 
 StackedGraph.prototype.draw = function(){
 	//console.log('draw graph', this.options.name);

@@ -2,4 +2,4 @@
 
 all: build
 build:
-	porter main.js -o out.js --debug
+	porter main.js -o out.js
