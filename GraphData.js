@@ -23,7 +23,11 @@ GraphData.prototype = Object.create(Emitter.prototype);
 GraphData.prototype.constructor = GraphData;
 
 GraphData.prototype.getXDomain = function(){
-	return [this.xmin, this.xmax];
+	var domain = [this.x.invert(0), this.x.invert(this.pixelRange.x)];
+	if(domain[1]<domain[0]){
+		throw 'invalid domain';
+	}
+	return domain;
 };
 
 GraphData.prototype.setXDomain = function(xmin, xmax){
@@ -117,10 +121,13 @@ GraphData.prototype.getValue = function(x){
 			}
 		}
 	}
+
+	var xIndex = this.findClosestXPointIndex(x, this.series[0].points);
+
 	if(seriesIndex!==null)
-		return this.getValueOfSeriesAtPoint(seriesIndex, x);
+		return this.getValueOfSeriesAtPoint(seriesIndex, xIndex);
 	else
-		return this.getCombinedValueAtPoint(x);
+		return this.getCombinedValueAtPoint(xIndex);
 	return ;
 };
 
@@ -148,16 +155,17 @@ GraphData.prototype.getMaxY = function(series /*plural*/){
 	return max;
 };
 
-GraphData.prototype.getValueAtPoint = function(x, y){
-	var seriesIndex = this.getSeriesIndexFromPoint(x, y);
-	var value;
+GraphData.prototype.getValueAtPoint = function(xIndex, y){
+	var seriesIndex = this.getSeriesIndexFromPoint(xIndex, y);
 	if(seriesIndex!==null)
-		return { value: this.getValueOfSeriesAtPoint(seriesIndex, x), series: this.series[seriesIndex].name };
+		return { value: this.getValueOfSeriesAtPoint(seriesIndex, xIndex), series: this.series[seriesIndex].name };
 	else
-		return { value: this.getCombinedValueAtPoint(x), series: null };
+		return { value: this.getCombinedValueAtPoint(xIndex), series: null };
 };
 
 GraphData.prototype.findClosestXPointIndex = function(x, points){
+	if(!points)
+		points = this.pixelSeriesArr[0].points;
 	var low = 0, high = points.length-1, next, last;
 	while( low !== high ){
 		next = Math.floor((high+low)/2);
@@ -184,9 +192,9 @@ GraphData.prototype.findClosestXPointIndex = function(x, points){
 	throw('Did not find point closest by x');
 };
 
-GraphData.prototype.isPointInside = function(x, y, points){
-	var pointIndex = this.findClosestXPointIndex(x, points);
-	var point = points[pointIndex];
+GraphData.prototype.isPointInside = function(xIndex, y, points){
+	var point = points[xIndex];
+	var x = point.x;
 	var other, line, yprime;
 	if(point.x === x){
 		return point.y<=y;
@@ -203,29 +211,24 @@ GraphData.prototype.isPointInside = function(x, y, points){
 	return line.map(x) <= y;
 };
 
-GraphData.prototype.getSeriesIndexFromPoint = function(x, y){
+GraphData.prototype.getSeriesIndexFromPoint = function(xIndex, y){
 	for(var i = 0; i<this.pixelSeriesArr.length; i++){
-		if(this.isPointInside(x, y, this.pixelSeriesArr[i].points)){
+		if(this.isPointInside(xIndex, y, this.pixelSeriesArr[i].points)){
 			return i;
 		}
 	}
 	return null;
 };
 
-GraphData.prototype.getValueOfSeriesAtPoint = function(i, x){
-	var points = this.pixelSeriesArr[i].points;
-	var index = this.findClosestXPointIndex(x, points);
-	var point = this.series[i].points[index];
-	return point.y;
+GraphData.prototype.getValueOfSeriesAtPoint = function(seriesIndex, xIndex){
+	return this.series[seriesIndex].points[xIndex].y;
 };
 
-GraphData.prototype.getCombinedValueAtPoint = function(x){
+GraphData.prototype.getCombinedValueAtPoint = function(xIndex){
 	if(!this.pixelSeriesArr){
-		console.log('call getPixelSeries');
 		this.pixelSeriesArr = this.getPixelSeries(); }
 	var points =this.pixelSeriesArr[this.pixelSeriesArr.length-1].points;
-	var index = this.findClosestXPointIndex(x, points);
-	var point = points[index];
+	var point = points[xIndex];
 	return this.y.invert(point.y);
 };
 

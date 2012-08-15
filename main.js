@@ -14,19 +14,26 @@ var netout = metricAdapter(metrics, 'net_in');
 var netoutEl = document.getElementById('graph2');
 var graph2 = new CanvasGraph(netoutEl, netout, { width: 600, height: 350 });
 
+/*
 graph1.on('pan', function(amount){
 	graph2.panTo(amount);
 	graph3.panTo(amount);
 	graph4.panTo(amount);
 });
+*/
 
-graph1.on('zoom', function(amount, around){
-	console.log('graph1 zoom', amount, around);
-	graph2.zoom(amount, around);
-	graph3.zoom(amount, around);
-	graph4.zoom(amount, around);
-	graph5.zoom(amount, around);
-	graph6.zoom(amount, around);
+graph1.on('zoom', function(){
+	var domain = graph1.data.getXDomain();
+	graph2.zoomTo(domain);
+	graph3.zoomTo(domain);
+	graph4.zoomTo(domain);
+	graph5.zoomTo(domain);
+	graph6.zoomTo(domain);
+	console.log('zoom to ', domain);
+});
+
+graph1.on('markerMove', function(m){
+	console.log('m', m);
 });
 
 graph2.draw();

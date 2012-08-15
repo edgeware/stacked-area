@@ -66,29 +66,25 @@ test('pan', function(t){
 
 test('findClosestXPointIndex', function(t){
 	var points = data.series[0].points;
-	var closest = data.findClosestXPointIndex(1, points);
-	t.equal(closest, 1);
-	var closest2 = data.findClosestXPointIndex(0, points);
-	t.equal(closest2, 0);
+	t.equal(data.findClosestXPointIndex(0, points), 0, 'index of x value 0');
+
+	t.equal(data.findClosestXPointIndex(1, points), 1, 'index of x value 1');
+	t.equal(data.findClosestXPointIndex(1, data.getPixelSeries()[0].points), 0, 'index of x value 1 in pixels');
 	
 	var points2=[{x:0}, {x:2}, {x:4}];
-	var closest3 = data.findClosestXPointIndex(1, points2);
-	t.ok(closest3 === 0 || closest3 === 1);
-	var closest4 = data.findClosestXPointIndex(3, points2);
-	t.ok(closest4 === 1 || closest4 === 2);
-	var closest5 = data.findClosestXPointIndex(3.5, points2);
-	t.equal(closest5, 2);
+	t.ok([0, 1].indexOf(data.findClosestXPointIndex(1, points2))!=-1, 'value in between points');
+	t.equal(data.findClosestXPointIndex(3.5, points2), 2, 'fractional value');
 	t.end();
 });
 
 test('isPointInside', function(t){
 	var points = [{x:10, y:20}, {x:20, y:30}];
-	t.equal(data.isPointInside(10, 30, points), true);
-	t.equal(data.isPointInside(10, 20, points), true);
-	t.equal(data.isPointInside(20, 30, points), true);
-	t.equal(data.isPointInside(20, 40, points), true);
-	t.equal(data.isPointInside(20, 10, points), false);
-	t.equal(data.isPointInside(10, 5, points), false);
+	t.equal(data.isPointInside(0, 30, points), true);
+	t.equal(data.isPointInside(0, 20, points), true);
+	t.equal(data.isPointInside(1, 30, points), true);
+	t.equal(data.isPointInside(1, 40, points), true);
+	t.equal(data.isPointInside(1, 10, points), false);
+	t.equal(data.isPointInside(0, 5, points), false);
 	t.end();
 });
 
@@ -99,9 +95,9 @@ test('getSeriesIndexFromPoint', function(t){
 });
 
 test('getValueOfSeriesAtPoint', function(t){
+	t.equal(data.getValueOfSeriesAtPoint(0, 0), 1, 'getValueOfSeriesAtPoint 0, 0');
 	t.equal(data.getValueOfSeriesAtPoint(0, 0), 1);
-	t.equal(data.getValueOfSeriesAtPoint(0, 40), 1);
-	t.equal(data.getValueOfSeriesAtPoint(0, 100), 2);
+	t.equal(data.getValueOfSeriesAtPoint(0, data.findClosestXPointIndex(100)), 2);
 	t.end();
 });
 

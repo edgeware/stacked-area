@@ -47,6 +47,11 @@ var StackedGraph = function(elem, series, options) {
 StackedGraph.prototype = Object.create(Emitter.prototype);
 StackedGraph.prototype.constructor = StackedGraph;
 
+StackedGraph.prototype.setData = function(data){
+	this.data = new GraphData(data, {x: this.width, y:this.height}, this.options);
+	this.draw();
+};
+
 StackedGraph.prototype.getValue = function(x){
 	return this.data.getValue(x);
 };
@@ -72,7 +77,7 @@ StackedGraph.prototype.initZoom = function(){
 		normalizeEvent(e);
 		var zoomFactor = this.zoomFactorFromMouseEvent(e);
 		this.data.zoom(zoomFactor, e.x-this.offsetLeft);
-		this.triggerZoom(zoomFactor, this.data.x.invert(e.x-this.offsetLeft));
+		this.triggerZoom();
         this.draw();
         e.preventDefault();
 	}.bind(this));
@@ -81,18 +86,18 @@ StackedGraph.prototype.initZoom = function(){
 StackedGraph.prototype.initPan = function() {
 	var _this = this,
 		elem = this.elem,
-		data = this.data,
 		panStart;
 	var panMove = function(move) {
 		normalizeEvent(move);
 		var panOffset = move.x - panStart;
-		data.pan(panOffset - panned);
-		_this.triggerPan(data.x.l());
+		_this.data.pan(panOffset - panned);
+		_this.triggerPan(_this.data.x.l());
 		panned += (panOffset - panned);
 		return _this.draw();
 	};
 	var panUp = function(move) {
 		elem.removeEventListener('mousemove', panMove);
+		elem.removeEventListener('mouseout', panUp);
 		return elem.removeEventListener('mouseup', panUp);
 	};
 	var panDown = function(down) {
@@ -100,6 +105,7 @@ StackedGraph.prototype.initPan = function() {
 		panStart = down.x;
 		panned = 0;
 		elem.addEventListener('mousemove', panMove);
+		elem.addEventListener('mouseout', panUp);
 		return elem.addEventListener('mouseup', panUp);
 	};
 
@@ -120,8 +126,13 @@ StackedGraph.prototype.zoom = function(amount, around){
 	this.draw();
 };
 
-StackedGraph.prototype.triggerZoom = function(amount, around){
-	this.trigger('zoom', amount, around);
+StackedGraph.prototype.zoomTo = function(domain){
+	this.data.setXDomain(domain[0], domain[1]);
+	this.draw();
+};
+
+StackedGraph.prototype.triggerZoom = function(){
+	this.trigger('zoom', this.data.getXDomain());
 };
 
 StackedGraph.prototype.triggerViewPortChanged = function(){
@@ -139,32 +150,51 @@ StackedGraph.prototype.initHighlightTracking = function(){
 	var _this = this;
 	this.canvas.addEventListener('mouseout', function(){
 		if(_this.data.highlightSeries(null)){
+			_this.highlightedSeries = null;
 			_this.draw();
 		}
 	});
 	this.on('value', function(value){
 		if(_this.data.highlightSeries(value.series)){
+			_this.highlightedSeries = value.series;
 			_this.draw();
 		}
 		//console.log('Hoovering over series '+ value.series + ' which has value:' + value.value);
 	});
 };
 
+StackedGraph.prototype.getHighlightedSeries = function(){
+	return this.highlightedSeries;
+};
+
 StackedGraph.prototype.highlightMouseMove = function(e){
 	normalizeEvent(e);
-	var x = e.x - this.offsetLeft;
-	var y = e.y - this.offsetTop;
+	var x = e.offsetX;
+	var y = e.offsetY;
 
-	var pointValue = this.data.getValueAtPoint(x, y);
+	var xIndex = this.data.findClosestXPointIndex(x);
+	var series = this.data.getSeriesIndexFromPoint(xIndex, y);
+	var value;
+	/*
+	if(series!==null){
+		value = this.data.getValueOfSeriesAtPoint(series, xIndex);
+	}else{
+		value = this.data.getCombinedValueAtPoint(xIndex);
+	}*/
 
-	this.trigger('value', pointValue);
+	var movementData = {x: this.data.series[0].points[xIndex].x, i: xIndex};
+	//if(!this.lastMarkerMove || this.lastMarkerMove.x!==movementData.x || this.lastMarkerMove.i!==movementData.i){
+	//	this.lastMarkerMove = movementData;
+	var seriesName = series!==null ? this.data.series[series].name: null;
+	this.trigger('value', { series: seriesName, value: value });
+	this.trigger('markerMove',  movementData);
 };
 
 StackedGraph.prototype.highlightRegion = function(start, stop){
 
 };
 
-StackedGraph.prototype.zoomFactorFromMouseEvent = function(e){ return e.delta / 180 + 1; };
+StackedGraph.prototype.zoomFactorFromMouseEvent = function(e){ return e.wheelDelta / 180 + 1; };
 
 StackedGraph.prototype.draw = function(){
 	//console.log('draw graph', this.options.name);
