@@ -14,6 +14,7 @@ function GraphData(series, pixelRange, options){
 	var minZoomFactor = options.minZoomFactor || 1/10;
 	var maxZoomFactor = options.minZoomFactor || series[0].points.length;
 	this.y = new LinearTransform( -pixelRange.y/this.ymax, pixelRange.y);
+	if(options.inverted) this.y.invertRange(this.ymax);
 
 	this.minZoom = minZoomFactor * this.x.k();
 	this.maxZoom = maxZoomFactor * this.x.k();
@@ -73,7 +74,7 @@ GraphData.prototype.zoomX  = function(zoomFactor, xval){
 GraphData.prototype.getPixelSeries = function(){
 	var pixelSeriesArr = [], pixelSeries = [];
 	for(var c=0;c<this.series[0].points.length;c++){
-		pixelSeries[c] = {y: this.pixelRange.y };
+		pixelSeries[c] = {y: this.options.inverted? 0 : this.pixelRange.y };
 	}
 	for(var i = 0; i<this.series.length; i++){
 		var series = this.series[i];
@@ -99,10 +100,16 @@ GraphData.prototype.toPixels = function(points, offsets){
 };
 
 GraphData.prototype.toPixelPoint = function(point, yOffset){
-	return {
-		x: this.x.map(point.x),
-		y: this.y.map(point.y) - (yOffset? (this.pixelRange.y - yOffset) :0)
-	};
+	var x = this.x.map(point.x);
+	var y = this.y.map(point.y);
+	if(yOffset){
+		if(this.options.inverted){
+			y = y + yOffset;
+		}else{
+			y = y - this.pixelRange.y + yOffset;
+		}
+	}
+	return { x: x, y: y };
 };
 
 GraphData.prototype.highlightSeries = function(name){
@@ -155,14 +162,6 @@ GraphData.prototype.getMaxY = function(series /*plural*/){
 	return max;
 };
 
-GraphData.prototype.getValueAtPoint = function(xIndex, y){
-	var seriesIndex = this.getSeriesIndexFromPoint(xIndex, y);
-	if(seriesIndex!==null)
-		return { value: this.getValueOfSeriesAtPoint(seriesIndex, xIndex), series: this.series[seriesIndex].name };
-	else
-		return { value: this.getCombinedValueAtPoint(xIndex), series: null };
-};
-
 GraphData.prototype.findClosestXPointIndex = function(x, points){
 	if(!points)
 		points = this.pixelSeriesArr[0].points;
@@ -192,28 +191,27 @@ GraphData.prototype.findClosestXPointIndex = function(x, points){
 	throw('Did not find point closest by x');
 };
 
-GraphData.prototype.isPointInside = function(xIndex, y, points){
+GraphData.prototype.isPointInside = function(x, y, points, xIndex){
 	var point = points[xIndex];
-	var x = point.x;
 	var other, line, yprime;
+	var lowerPixel = this.options.inverted ? function(a, b){ return a>b; } : function(a, b){ return a<b; };
 	if(point.x === x){
-		return point.y<=y;
+		return lowerPixel(point.y, y);
 	}
 	if(point.x<x){
-		if(pointIndex === points.length-1) return point.y<=y;
-		other = points[pointIndex+1];
+		if(xIndex === points.length-1) return lowerPixel(point.y,y);
+		other = points[xIndex+1];
 	}
 	if(point.x>x){
-		if(pointIndex === 0) return point.y<=y;
-		other = points[pointIndex-1];
+		other = points[xIndex-1];
 	}
 	line = LinearTransform.fromTwoPoints(point, other);
-	return line.map(x) <= y;
+	return lowerPixel(line.map(x), y);
 };
 
-GraphData.prototype.getSeriesIndexFromPoint = function(xIndex, y){
+GraphData.prototype.getSeriesIndexFromPoint = function(xpxl, ypxl, xIndexClosest){
 	for(var i = 0; i<this.pixelSeriesArr.length; i++){
-		if(this.isPointInside(xIndex, y, this.pixelSeriesArr[i].points)){
+		if(this.isPointInside(xpxl, ypxl, this.pixelSeriesArr[i].points, xIndexClosest)){
 			return i;
 		}
 	}

@@ -21,6 +21,7 @@ stacked: [x:0, y:3] [x:1, y:4]
 */
 
 var data = new GraphData(series, {x: 100, y: 100}, {});
+var inverted = new GraphData(series, {x: 100, y: 100}, {inverted: true});
 
 test('calculates extreme x values', function(t){
 	t.equal(data.xmin, 0);
@@ -45,6 +46,15 @@ test('calculates pixel mappings', function(t){
 	var point21 = pixelSeries[1].points[0];
 	t.deepEqual(point11, { x: 0, y: 75 });
 	t.deepEqual(point21, { x: 0, y: 25 }); //100 - (1+2)/4 * 100
+	t.end();
+});
+
+test('calculates inverted pixel mappings', function(t){
+	var pixelSeries = inverted.getPixelSeries();
+	console.error(pixelSeries[0].points);
+	t.ok(Array.isArray(pixelSeries));
+	t.deepEqual(pixelSeries[0].points[0], { x: 0, y: 25 });
+	t.deepEqual(pixelSeries[1].points[0], { x: 0, y: 75 }); //(1+2)/4 * 100
 	t.end();
 });
 
@@ -79,18 +89,18 @@ test('findClosestXPointIndex', function(t){
 
 test('isPointInside', function(t){
 	var points = [{x:10, y:20}, {x:20, y:30}];
-	t.equal(data.isPointInside(0, 30, points), true);
-	t.equal(data.isPointInside(0, 20, points), true);
-	t.equal(data.isPointInside(1, 30, points), true);
-	t.equal(data.isPointInside(1, 40, points), true);
-	t.equal(data.isPointInside(1, 10, points), false);
-	t.equal(data.isPointInside(0, 5, points), false);
+	t.equal(data.isPointInside(data.x.map(0), 30, points, 0), true);
+	t.equal(data.isPointInside(data.x.map(0), 20, points, 0), true);
+	t.equal(data.isPointInside(data.x.map(1), 30, points, 1), true);
+	t.equal(data.isPointInside(data.x.map(1), 40, points, 1), true);
+	t.equal(data.isPointInside(data.x.map(1), 10, points, 1), false);
+	t.equal(data.isPointInside(data.x.map(0), 5, points, 0), false);
 	t.end();
 });
 
 test('getSeriesIndexFromPoint', function(t){
-	t.equal(data.getSeriesIndexFromPoint(0, 100), 0);
-	t.equal(data.getSeriesIndexFromPoint(0, 50), 1);
+	t.equal(data.getSeriesIndexFromPoint(this.x.map(0), 100, data.findClosestXPointIndex(0)), 0);
+	t.equal(data.getSeriesIndexFromPoint(this.x.map(0), 50, data.findClosestXPointIndex(0)), 1);
 	t.end();
 });
 

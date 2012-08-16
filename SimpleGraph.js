@@ -11,7 +11,6 @@ var normalizeEvent = require('./normalizeEvent');
 var StackedGraph = function(elem, series, options) {
 	Emitter.call(this);
 	this.options = options;
-	console.log('init graph', options.name);
 	this.elem = elem;
 	this.width = options.width || elem.clientWidth;
 	this.height = options.height || elem.clientHeight;
@@ -22,7 +21,7 @@ var StackedGraph = function(elem, series, options) {
 	this.canvasRenderer = new CanvasRenderer(
 		this.canvas,
 		series,
-		{ width: this.width, height: this.height }
+		{ width: this.width, height: this.height, ymax: options.inverted? 0: this.height, inverted: options.inverted }
 	);
 
 	this.panOffset = 0;
@@ -173,7 +172,8 @@ StackedGraph.prototype.highlightMouseMove = function(e){
 	var y = e.offsetY;
 
 	var xIndex = this.data.findClosestXPointIndex(x);
-	var series = this.data.getSeriesIndexFromPoint(xIndex, y);
+	var series = this.data.getSeriesIndexFromPoint(x, y, xIndex);
+	//console.log('series', x, y, this.data.y.invert(y), this.data.pixelSeriesArr[series].points[xIndex].y, this.data.pixelSeriesArr[1].points[xIndex].y);
 	var value;
 	/*
 	if(series!==null){

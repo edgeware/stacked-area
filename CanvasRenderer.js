@@ -1,7 +1,9 @@
 var CanvasRenderer = function(canvas, series, options){
+	this.options = options;
 	this.canvas = canvas;
 	this.width = options.width;
 	this.height = options.height;
+	this.ymax = options.ymax;
 	this.ctx = canvas.getContext('2d');
 };
 
@@ -12,9 +14,11 @@ CanvasRenderer.prototype.clear = function(){
 CanvasRenderer.prototype.draw = function(seriesArr){
 	//# timer start drawing_series
 	//var drawingStart = performance.webkitNow();
+	var index;
 	this.clear();
 
 	for(var i=seriesArr.length;i;i--){
+		index = i-1;
 		var series = seriesArr[i-1];
 		this.drawSeries(series.points, series.color);
 	}
@@ -43,10 +47,9 @@ CanvasRenderer.prototype.drawSeries = function(points, color){
 		this.ctx.lineTo(point.x, point.y);
 	}
 	this.ctx.stroke();
-	this.ctx.lineTo(point.x, this.height);
-	this.ctx.lineTo(points[0].x, this.height);
+	this.ctx.lineTo(point.x, this.ymax);
+	this.ctx.lineTo(points[0].x, this.ymax);
 	this.ctx.lineTo(points[0].x, points[0].y);
-
 	this.ctx.fill();
 };
 

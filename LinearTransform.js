@@ -46,6 +46,11 @@ LinearTransform.prototype.invert = function(y) {
   return (y - this._l) / this._k;
 };
 
+LinearTransform.prototype.invertRange = function(range){
+  this._l = this._l+this._k*range;
+  this._k = -this._k;
+};
+
 LinearTransform.prototype.setSlopeAtPoint = function(slope, x) {
   var k0, k1, l0, l1;
   k0 = this._k;
