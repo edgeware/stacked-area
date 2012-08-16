@@ -203,6 +203,7 @@ GraphData.prototype.isPointInside = function(x, y, points, xIndex){
 		other = points[xIndex+1];
 	}
 	if(point.x>x){
+		if(xIndex===0) return lowerPixel(point.y, y);
 		other = points[xIndex-1];
 	}
 	line = LinearTransform.fromTwoPoints(point, other);
