@@ -20,7 +20,7 @@ function GraphData(series, pixelRange, options) {
 	var minZoomFactor = options.minZoomFactor || 1 / 10;
 	var maxZoomFactor = options.minZoomFactor || series[0].points.length;
 	this.y = new LinearTransform(-pixelRange.y / this.ymax, pixelRange.y);
-	if (options.inverted) this.y.invertRange(this.ymax);
+	if (options.inverted) this.y.setSlopeAtPoint(-this.y.k(), this.ymax/2);
 
 	this.minZoom = minZoomFactor * this.x.k();
 	this.maxZoom = maxZoomFactor * this.x.k();
