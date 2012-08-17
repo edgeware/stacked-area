@@ -23,7 +23,9 @@ var StackedGraph = function(elem, series, options) {
 			width: this.width,
 			height: this.height,
 			ymax: options.inverted ? 0 : this.height,
-			inverted: options.inverted
+			ymin: options.inverted ? this.height : 0,
+			inverted: options.inverted,
+			highlightRegionColor: options.highlightRegionColor || 'rgba(255, 0, 0, .3)'
 		});
 
 		this.panOffset = 0;
@@ -198,7 +200,8 @@ StackedGraph.prototype.highlightMouseMove = function(e) {
 };
 
 StackedGraph.prototype.highlightRegion = function(start, stop) {
-
+	this.data.highlightRegion(start, stop);
+	this.draw();
 };
 
 StackedGraph.prototype.zoomFactorFromMouseEvent = function(e) {
@@ -206,7 +209,7 @@ StackedGraph.prototype.zoomFactorFromMouseEvent = function(e) {
 };
 
 StackedGraph.prototype.draw = function() {
-	this.canvasRenderer.draw(this.data.getPixelSeries());
+	this.canvasRenderer.draw(this.data.getPixelSeries(), this.data.getHighlightRegion());
 };
 
 module.exports = StackedGraph;

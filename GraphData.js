@@ -37,6 +37,21 @@ GraphData.prototype.getXDomain = function() {
 	return domain;
 };
 
+GraphData.prototype.highlightRegion = function(start, stop){
+	this.highlight = {
+		from: start,
+		to: stop
+	};
+	this.highlightPixels = {
+		from: this.x.map(start),
+		to: this.x.map(stop)
+	};
+};
+
+GraphData.prototype.getHighlightRegion = function(){
+	return this.highlightPixels;
+};
+
 GraphData.prototype.setXDomain = function(xmin, xmax) {
 	this.xmin = xmin;
 	this.xmax = xmax;

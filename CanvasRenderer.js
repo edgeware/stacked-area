@@ -4,6 +4,7 @@ var CanvasRenderer = function(canvas, series, options) {
 		this.width = options.width;
 		this.height = options.height;
 		this.ymax = options.ymax;
+		this.ymin = options.ymin;
 		this.ctx = canvas.getContext('2d');
 	};
 
@@ -11,7 +12,7 @@ CanvasRenderer.prototype.clear = function() {
 	this.canvas.width = this.canvas.width;
 };
 
-CanvasRenderer.prototype.draw = function(seriesArr) {
+CanvasRenderer.prototype.draw = function(seriesArr, highlight) {
 	//# timer start drawing_series
 	//var drawingStart = performance.webkitNow();
 	var index;
@@ -22,6 +23,9 @@ CanvasRenderer.prototype.draw = function(seriesArr) {
 		var series = seriesArr[i - 1];
 		this.drawSeries(series.points, series.color);
 	}
+
+	if (highlight)
+		this.drawHighlightRegion(highlight);
 	//# timer end drawing_series
 	//var time = performance.webkitNow() - drawingStart;
 	//console.log('drawing time', time);
@@ -50,6 +54,17 @@ CanvasRenderer.prototype.drawSeries = function(points, color) {
 	this.ctx.lineTo(point.x, this.ymax);
 	this.ctx.lineTo(points[0].x, this.ymax);
 	this.ctx.lineTo(points[0].x, points[0].y);
+	this.ctx.fill();
+};
+
+CanvasRenderer.prototype.drawHighlightRegion = function(highlight){
+	this.ctx.fillStyle = this.options.highlightRegionColor;
+	this.ctx.beginPath();
+	this.ctx.moveTo(highlight.from, this.ymin);
+	this.ctx.lineTo(highlight.from, this.ymax);
+	this.ctx.lineTo(highlight.to, this.ymax);
+	this.ctx.lineTo(highlight.to, this.ymin);
+	this.ctx.closePath();
 	this.ctx.fill();
 };
 
