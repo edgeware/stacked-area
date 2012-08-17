@@ -1,0 +1,2 @@
+#!/bin/sh
+node format-api-docs.js < docs.json | node write-readme.js

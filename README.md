@@ -17,5 +17,58 @@ The series data should be and array of series objects each having the following 
 * points {Array}
 
 The points array contains the actual data for the series. Each point should have the attributes
-* x
-* y
+* x {Number}
+* y {Number}
+
+### Methods
+
+Once you have instantiated a graph, there is a set of methods available for zooming, getting values etc.
+
+##### StackedGraph.prototype.initZoom()
+
+Hook up zooming with mouse wheel
+
+##### StackedGraph.prototype.initPan()
+
+Enable panning by click and drag
+
+##### StackedGraph.prototype.triggerPan()
+
+Emit pan event
+
+##### StackedGraph.prototype.panTo()
+
+Pan to x value
+
+##### StackedGraph.prototype.zoomTo()
+
+Zoom to x range
+
+##### StackedGraph.prototype.triggerZoom()
+
+Emit zoom event
+
+##### StackedGraph.prototype.initHighlightTracking()
+
+Enable tracking of which series the user is hoovering over
+
+##### StackedGraph.prototype.getHighlightedSeries()
+
+Get which series is currently highlighted
+
+##### StackedGraph.prototype.highlightMouseMove()
+
+Callback for mouse move events to track which series to highlight
+
+##### StackedGraph.prototype.highlightRegion()
+
+Highlight a contiguous subset of the domain of the graph
+
+##### StackedGraph.prototype.zoomFactorFromMouseEvent()
+
+Get the zoomfactor from a mouse wheel event
+
+##### StackedGraph.prototype.draw()
+
+Draw or redraw the graph
+
