@@ -72,6 +72,7 @@ StackedGraph.prototype.constructor = StackedGraph;
 /**
  * Set the data series and redraw the graph
  * @param {Array} data
+ * @api public
  */
 StackedGraph.prototype.setData = function(data) {
     this.data = new GraphData(data, {
@@ -83,6 +84,7 @@ StackedGraph.prototype.setData = function(data) {
 /**
  * Get the value of the currently highlighted region at position {x}
  * @param {Number} x
+ * @api public
  */
 StackedGraph.prototype.getValue = function(x) {
     return this.data.getValue(x);
@@ -174,7 +176,7 @@ StackedGraph.prototype.triggerPan = function(amount) {
 
 /**
  * Pan to x value
- * @api private
+ * @api public
  */
 StackedGraph.prototype.panTo = function(offset) {
     this.data.x.l(offset);
@@ -253,9 +255,9 @@ StackedGraph.prototype.highlightMouseMove = function(e) {
 
 /**
  * Highlight a contiguous subset of the domain of the graph
+ * @api public
  * @param {Number} start
  * @param {Number} stop
- * @api public
  */
 StackedGraph.prototype.highlightRegion = function(start, stop) {
     this.data.highlightRegion(start, stop);
@@ -264,8 +266,8 @@ StackedGraph.prototype.highlightRegion = function(start, stop) {
 
 /**
  * Get the zoomfactor from a mouse wheel event
- * @param {Object} e
  * @api private
+ * @param {Object} e
  */
 StackedGraph.prototype.zoomFactorFromMouseEvent = function(e) {
     return e.wheelDelta / 180 + 1;
