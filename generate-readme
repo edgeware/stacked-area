@@ -1,2 +1,0 @@
-#!/bin/sh
-dox < StackedGraph.js | node format-api-docs.js | node write-readme.js
