@@ -3,18 +3,21 @@ function LinearTransform(k, l) {
   this._l = l;
 }
 
-LinearTransform.fromTwoPoints = function(p0, p1){
+LinearTransform.fromTwoPoints = function(p0, p1) {
   var p = LinearTransform.parametersFromTwoPoints(p0, p1);
   return new LinearTransform(p.k, p.l);
 };
 
-LinearTransform.parametersFromTwoPoints = function(p0, p1){
-  var k = (p1.y-p0.y)/(p1.x -p0.x);
+LinearTransform.parametersFromTwoPoints = function(p0, p1) {
+  var k = (p1.y - p0.y) / (p1.x - p0.x);
   var l = p1.y - k * p1.x;
-  return { k: k, l: l };
+  return {
+    k: k,
+    l: l
+  };
 };
 
-LinearTransform.prototype.fromTwoPoints = function(p0, p1){
+LinearTransform.prototype.fromTwoPoints = function(p0, p1) {
   var p = LinearTransform.parametersFromTwoPoints(p0, p1);
   this.k(p.k);
   this.l(p.l);
@@ -46,8 +49,8 @@ LinearTransform.prototype.invert = function(y) {
   return (y - this._l) / this._k;
 };
 
-LinearTransform.prototype.invertRange = function(range){
-  this._l = this._l+this._k*range;
+LinearTransform.prototype.invertRange = function(range) {
+  this._l = this._l + this._k * range;
   this._k = -this._k;
 };
 
