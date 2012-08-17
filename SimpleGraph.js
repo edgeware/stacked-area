@@ -165,12 +165,11 @@ StackedGraph.prototype.initHighlightTracking = function() {
 			_this.draw();
 		}
 	});
-	this.on('value', function(value) {
-		if (_this.data.highlightSeries(value.series)) {
-			_this.highlightedSeries = value.series;
+	this.on('mouseOverSeries', function(eventData) {
+		if (_this.data.highlightSeries(eventData.series)) {
+			_this.highlightedSeries = eventData.series;
 			_this.draw();
 		}
-		//console.log('Hoovering over series '+ value.series + ' which has value:' + value.value);
 	});
 };
 
@@ -185,25 +184,15 @@ StackedGraph.prototype.highlightMouseMove = function(e) {
 
 	var xIndex = this.data.findClosestXPointIndex(x);
 	var series = this.data.getSeriesIndexFromPoint(x, y, xIndex);
-	//console.log('series', x, y, this.data.y.invert(y), this.data.pixelSeriesArr[series].points[xIndex].y, this.data.pixelSeriesArr[1].points[xIndex].y);
-	var value;
-	/*
-	if(series!==null){
-		value = this.data.getValueOfSeriesAtPoint(series, xIndex);
-	}else{
-		value = this.data.getCombinedValueAtPoint(xIndex);
-	}*/
 
 	var movementData = {
 		x: this.data.series[0].points[xIndex].x,
 		i: xIndex
 	};
-	//if(!this.lastMarkerMove || this.lastMarkerMove.x!==movementData.x || this.lastMarkerMove.i!==movementData.i){
-	//	this.lastMarkerMove = movementData;
+	
 	var seriesName = series !== null ? this.data.series[series].name : null;
-	this.trigger('value', {
-		series: seriesName,
-		value: value
+	this.trigger('mouseOverSeries', {
+		series: seriesName
 	});
 	this.trigger('markerMove', movementData);
 };
@@ -217,7 +206,6 @@ StackedGraph.prototype.zoomFactorFromMouseEvent = function(e) {
 };
 
 StackedGraph.prototype.draw = function() {
-	//console.log('draw graph', this.options.name);
 	this.canvasRenderer.draw(this.data.getPixelSeries());
 };
 
