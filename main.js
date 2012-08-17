@@ -1,4 +1,4 @@
-var CanvasGraph = require('./SimpleGraph');
+var CanvasGraph = require('./StackedGraph');
 var metricAdapter = require('./metricAdapter');
 var metrics = require('./test/metrics');
 
