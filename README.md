@@ -24,17 +24,13 @@ The points array contains the actual data for the series. Each point should have
 
 Once you have instantiated a graph, there is a set of methods available for zooming, getting values etc.
 
-##### StackedGraph.prototype.initZoom()
+##### StackedGraph.prototype.setData()
 
-Hook up zooming with mouse wheel
+Set the data series and redraw the graph
 
-##### StackedGraph.prototype.initPan()
+##### StackedGraph.prototype.getValue()
 
-Enable panning by click and drag
-
-##### StackedGraph.prototype.triggerPan()
-
-Emit pan event
+Get the value of the currently highlighted region at position {x}
 
 ##### StackedGraph.prototype.panTo()
 
@@ -44,29 +40,13 @@ Pan to x value
 
 Zoom to x range
 
-##### StackedGraph.prototype.triggerZoom()
-
-Emit zoom event
-
-##### StackedGraph.prototype.initHighlightTracking()
-
-Enable tracking of which series the user is hoovering over
-
 ##### StackedGraph.prototype.getHighlightedSeries()
 
 Get which series is currently highlighted
 
-##### StackedGraph.prototype.highlightMouseMove()
-
-Callback for mouse move events to track which series to highlight
-
 ##### StackedGraph.prototype.highlightRegion()
 
 Highlight a contiguous subset of the domain of the graph
-
-##### StackedGraph.prototype.zoomFactorFromMouseEvent()
-
-Get the zoomfactor from a mouse wheel event
 
 ##### StackedGraph.prototype.draw()
 

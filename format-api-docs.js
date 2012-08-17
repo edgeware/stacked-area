@@ -1,6 +1,6 @@
 function doxToMarkdown(doxJson){
     return doxJson.reduce(function(prev, item){
-        if(item.ctx.type!=='method') return;
+        if(item.ctx.type!=='method' || item.isPrivate) return prev;
         
         return (prev || '') + '##### ' + item.ctx.string+ '\n\n' +
             item.description.full.replace('<p>', '').replace('</p>', '') + '\n\n';
