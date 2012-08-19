@@ -1,6 +1,18 @@
 var LinearTransform = require('./LinearTransform');
 var Emitter = require('./Emitter');
 
+/**
+ * Instantiate a GraphData object encapsulating the data series
+ * to be visualized and the mappings of values to pixels.
+ * Options:
+ *   - `inverted`      Invert the y-value
+ *   - `minZoomFactor` Prevent zooming out to more than [minZoomFactor]^-1 * original-domain
+ *   - `maxZoomFactor` Prevent zooming in more than by [maxZoomFactor]
+ * @param {Array} series
+ * @param {Object} pixelRange The maximum x and y pixel values to map the series data to
+ * @param {Object} options
+ * @api public
+ */
 function GraphData(series, pixelRange, options) {
 	Emitter.call(this);
 	this.options = options;
