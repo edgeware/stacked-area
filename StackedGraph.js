@@ -242,6 +242,7 @@ StackedGraph.prototype.highlightMouseMove = function(e) {
 
     var movementData = {
         x: this.data.series[0].points[xIndex].x,
+        xpxl: this.data.pixelSeriesArr[0].points[xIndex].x,
         i: xIndex
     };
     
@@ -250,6 +251,7 @@ StackedGraph.prototype.highlightMouseMove = function(e) {
         series: seriesName
     });
     this.trigger('markerMove', movementData);
+    
 };
 
 /**
