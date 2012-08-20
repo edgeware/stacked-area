@@ -1,7 +1,6 @@
 /**
  * Dependencies
  */
-var LinearTransform = require('./LinearTransform');
 var CanvasRenderer = require('./CanvasRenderer');
 var Emitter = require('./Emitter');
 var GraphData = require('./GraphData');

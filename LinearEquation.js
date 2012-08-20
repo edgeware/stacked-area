@@ -1,17 +1,17 @@
 /**
  * Represent a line (y = kx + l)
  */
-function LinearTransform(k, l) {
+function LinearEquation(k, l) {
   this._k = k;
   this._l = l;
 }
 
-LinearTransform.fromTwoPoints = function(p0, p1) {
-  var p = LinearTransform.parametersFromTwoPoints(p0, p1);
-  return new LinearTransform(p.k, p.l);
+LinearEquation.fromTwoPoints = function(p0, p1) {
+  var p = LinearEquation.parametersFromTwoPoints(p0, p1);
+  return new LinearEquation(p.k, p.l);
 };
 
-LinearTransform.parametersFromTwoPoints = function(p0, p1) {
+LinearEquation.parametersFromTwoPoints = function(p0, p1) {
   var k = (p1.y - p0.y) / (p1.x - p0.x);
   var l = p1.y - k * p1.x;
   return {
@@ -26,21 +26,21 @@ LinearTransform.parametersFromTwoPoints = function(p0, p1) {
  * @param {Object} p1
  * @return undefined
  */
-LinearTransform.prototype.fromTwoPoints = function(p0, p1) {
-  var p = LinearTransform.parametersFromTwoPoints(p0, p1);
+LinearEquation.prototype.fromTwoPoints = function(p0, p1) {
+  var p = LinearEquation.parametersFromTwoPoints(p0, p1);
   this.k(p.k);
   this.l(p.l);
 };
 
-LinearTransform.prototype._k = 1;
+LinearEquation.prototype._k = 1;
 
-LinearTransform.prototype._l = 0;
+LinearEquation.prototype._l = 0;
 
 /**
  * Set or get slope (k) for line
  * @param {Number} slope
  */
-LinearTransform.prototype.k = function(factor) {
+LinearEquation.prototype.k = function(factor) {
   if (typeof factor === 'undefined') {
     return this._k;
   }
@@ -51,18 +51,18 @@ LinearTransform.prototype.k = function(factor) {
  * Set or get offset (l) for line
  * @param {Number} offset
  */
-LinearTransform.prototype.l = function(offset) {
+LinearEquation.prototype.l = function(offset) {
   if (typeof offset === 'undefined') {
     return this._l;
   }
   return this._l = offset;
 };
 
-LinearTransform.prototype.map = function(x) {
+LinearEquation.prototype.map = function(x) {
   return this._k * x + this._l;
 };
 
-LinearTransform.prototype.invert = function(y) {
+LinearEquation.prototype.invert = function(y) {
   return (y - this._l) / this._k;
 };
 
@@ -71,7 +71,7 @@ LinearTransform.prototype.invert = function(y) {
  *
  * @param {Number} point around which to rotate line
  */
-LinearTransform.prototype.setSlopeAtPoint = function(slope, x) {
+LinearEquation.prototype.setSlopeAtPoint = function(slope, x) {
   var k0, k1, l0, l1;
   k0 = this._k;
   k1 = slope;
@@ -81,6 +81,6 @@ LinearTransform.prototype.setSlopeAtPoint = function(slope, x) {
   return this._l = l1;
 };
 
-module.exports = LinearTransform;
+module.exports = LinearEquation;
 
-module.exports = LinearTransform;
+module.exports = LinearEquation;

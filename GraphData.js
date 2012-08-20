@@ -1,4 +1,4 @@
-var LinearTransform = require('./LinearTransform');
+var LinearEquation = require('./LinearEquation');
 var Emitter = require('./Emitter');
 
 /**
@@ -22,7 +22,7 @@ function GraphData(series, pixelRange, options) {
 	this.ymin = 0;
 	this.ymax = options.ymax || this.getMaxY(series);
 	this.pixelRange = pixelRange;
-	this.x = LinearTransform.fromTwoPoints({
+	this.x = LinearEquation.fromTwoPoints({
 		x: this.xmin,
 		y: 0
 	}, {
@@ -31,7 +31,9 @@ function GraphData(series, pixelRange, options) {
 	});
 	var minZoomFactor = options.minZoomFactor || 1 / 10;
 	var maxZoomFactor = options.minZoomFactor || series[0].points.length;
-	this.y = new LinearTransform(-pixelRange.y / this.ymax, pixelRange.y);
+	
+	this.y = new LinearEquation(-pixelRange.y / this.ymax, pixelRange.y);
+
 	if (options.inverted) this.y.setSlopeAtPoint(-this.y.k(), this.ymax/2);
 
 	this.minZoom = minZoomFactor * this.x.k();
@@ -85,11 +87,9 @@ GraphData.prototype.getYDomain = function() {
 	return [this.ymin, this.ymax];
 };
 
-GraphData.prototype.setYDomain = function(ymin, ymax) {
-	this.ymax = ymax;
-	this.ymin = ymin;
-	var ypxl = this.pixelRange.y;
-	this.y = new LinearTransform(-ypxl / this.ymax, ypxl);
+GraphData.prototype.setYMax = function(ymax) {
+	var factor = this.ymax/ymax;
+	this.y.k(factor * this.y.k());
 };
 
 GraphData.prototype.pan = function(offset) {
@@ -257,7 +257,7 @@ GraphData.prototype.isPointInside = function(x, y, points, xIndex) {
 		if (xIndex === 0) return lowerPixel(point.y, y);
 		other = points[xIndex - 1];
 	}
-	line = LinearTransform.fromTwoPoints(point, other);
+	line = LinearEquation.fromTwoPoints(point, other);
 	return lowerPixel(line.map(x), y);
 };
 
