@@ -1,0 +1,26 @@
+var Graph = require('../../StackedGraph');
+
+var series = [
+	{
+		name: 'series1',
+		points: [
+			{
+				x: 0,
+				y: 1
+			}, {
+				x: 1,
+				y: 2
+			}, {
+				x: 2,
+				y: 2
+			}, {
+				x: 3,
+				y: 0
+			}
+		]
+	}
+];
+
+var elem = document.getElementById('target');
+var graph = new Graph(elem, series, {});
+graph.zoomTo([0, 2]);
