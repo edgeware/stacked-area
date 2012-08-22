@@ -7,7 +7,7 @@ var GraphData = require('./GraphData');
 var normalizeEvent = require('./normalizeEvent');
 
 /**
- Export StackedGraph constructir
+ Export StackedGraph constructor
  */
 module.exports = StackedGraph;
 
