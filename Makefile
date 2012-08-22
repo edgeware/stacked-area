@@ -1,4 +1,4 @@
-.PHONY: build readme
+.PHONY: build readme example
 
 all: example docs
 
