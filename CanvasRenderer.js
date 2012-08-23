@@ -6,6 +6,7 @@ var CanvasRenderer = function(canvas, series, options) {
 		this.ymax = options.ymax;
 		this.ymin = options.ymin;
 		this.ctx = canvas.getContext('2d');
+		this.ctx.strokeStyle = options.stroke;
 	};
 
 CanvasRenderer.prototype.clear = function() {

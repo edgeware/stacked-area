@@ -4,7 +4,6 @@
 var CanvasRenderer = require('./CanvasRenderer');
 var Emitter = require('./Emitter');
 var GraphData = require('./GraphData');
-var normalizeEvent = require('./normalizeEvent');
 
 /**
  Export StackedGraph constructor
@@ -31,14 +30,16 @@ function StackedGraph(elem, series, options) {
     this.offsetLeft = this.canvas.offsetLeft;
     this.offsetTop = this.canvas.offsetTop;
     this.canvasRenderer = new CanvasRenderer(
-    this.canvas, series, {
-        width: this.width,
-        height: this.height,
-        ymax: options.inverted ? 0 : this.height,
-        ymin: options.inverted ? this.height : 0,
-        inverted: options.inverted,
-        highlightRegionColor: options.highlightRegionColor || 'rgba(255, 0, 0, .3)'
-    });
+        this.canvas, series, {
+            width: this.width,
+            height: this.height,
+            ymax: options.inverted ? 0 : this.height,
+            ymin: options.inverted ? this.height : 0,
+            inverted: options.inverted,
+            stroke: options.stroke || 'black',
+            highlightRegionColor: options.highlightRegionColor || 'rgba(255, 0, 0, .3)'
+        }
+    );
 
     this.panOffset = 0;
 
@@ -123,9 +124,8 @@ StackedGraph.prototype.mousewheelevent = 'mousewheel';
  */
 StackedGraph.prototype.initZoom = function() {
     this.elem.addEventListener(this.mousewheelevent, function(e) {
-        normalizeEvent(e);
         var zoomFactor = this.zoomFactorFromMouseEvent(e);
-        this.data.zoom(zoomFactor, e.x - this.offsetLeft);
+        this.data.zoom(zoomFactor, e.offsetX);
         this.triggerZoom();
         this.draw();
         e.preventDefault();
@@ -141,8 +141,7 @@ StackedGraph.prototype.initPan = function() {
         elem = this.elem,
         panStart;
     var panMove = function(move) {
-            normalizeEvent(move);
-            var panOffset = move.x - panStart;
+            var panOffset = move.offsetX - panStart;
             _this.data.pan(panOffset - panned);
             _this.triggerPan(_this.data.x.l());
             panned += (panOffset - panned);
@@ -154,8 +153,7 @@ StackedGraph.prototype.initPan = function() {
             return elem.removeEventListener('mouseup', panUp);
         };
     var panDown = function(down) {
-            normalizeEvent(down);
-            panStart = down.x;
+            panStart = down.offsetX;
             panned = 0;
             elem.addEventListener('mousemove', panMove);
             elem.addEventListener('mouseout', panUp);
@@ -233,7 +231,6 @@ StackedGraph.prototype.getHighlightedSeries = function() {
  * @api private
  */
 StackedGraph.prototype.highlightMouseMove = function(e) {
-    normalizeEvent(e);
     var x = e.offsetX;
     var y = e.offsetY;
 
