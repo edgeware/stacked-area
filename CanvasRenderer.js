@@ -39,7 +39,7 @@ CanvasRenderer.prototype.drawSeries = function(points, color) {
 	this.ctx.beginPath();
 
 	this.ctx.moveTo(points[0].x, points[0].y);
-
+	var lastDefined = 0;
 	for (var i = 1; i < points.length; i++) {
 		point = points[i];
 
@@ -49,10 +49,15 @@ CanvasRenderer.prototype.drawSeries = function(points, color) {
 		if (i - 1 >= 0 && points[i - 1].x > this.width) {
 			continue;
 		}
-		this.ctx.lineTo(point.x, point.y);
+		if(typeof point.y === 'number'){
+			this.ctx.lineTo(point.x, point.y);
+			lastDefined = i;
+		}else{
+			this.ctx.moveTo(point.x, point.y);
+		}
 	}
 	this.ctx.stroke();
-	this.ctx.lineTo(point.x, this.ymax);
+	this.ctx.lineTo(points[lastDefined].x, this.ymax);
 	this.ctx.lineTo(points[0].x, this.ymax);
 	this.ctx.lineTo(points[0].x, points[0].y);
 	this.ctx.fill();

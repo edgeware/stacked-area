@@ -145,8 +145,9 @@ GraphData.prototype.toPixels = function(points, offsets) {
 
 GraphData.prototype.toPixelPoint = function(point, yOffset) {
 	var x = this.x.map(point.x);
-	var y = this.y.map(point.y);
-	if (yOffset) {
+	var hasValue = typeof point.y === 'number';
+	var y = hasValue ? this.y.map(point.y) : void(0);
+	if (yOffset && hasValue) {
 		if (this.options.inverted) {
 			y = y + yOffset;
 		} else {
