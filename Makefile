@@ -10,4 +10,6 @@ example:
 	porter main.js -o out.js
 readme:
 	scripts/generate-readme
+render-test:
+	test/run
 docs: readme
