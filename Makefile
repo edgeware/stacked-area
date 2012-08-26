@@ -1,4 +1,4 @@
-.PHONY: build readme example
+.PHONY: build readme example test
 
 all: example docs
 
@@ -8,6 +8,8 @@ build:
 	porter StackedGraph.js --prefix __ -o build/StackedGraph.combined.js
 example:
 	porter main.js -o out.js
+test:
+	node_modules/.bin/tap test/unit
 readme:
 	scripts/generate-readme
 render-test:
