@@ -243,9 +243,9 @@ GraphData.prototype.isPointInside = function(x, y, points, xIndex) {
 	var other, line, yprime;
 	var lowerPixel = this.options.inverted ?
 	function(a, b) {
-		return a > b;
+		return a >= b;
 	} : function(a, b) {
-		return a < b;
+		return a <= b;
 	};
 	if (point.x === x) {
 		return lowerPixel(point.y, y);

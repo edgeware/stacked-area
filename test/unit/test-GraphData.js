@@ -51,7 +51,6 @@ test('calculates pixel mappings', function(t){
 
 test('calculates inverted pixel mappings', function(t){
 	var pixelSeries = inverted.getPixelSeries();
-	console.error(pixelSeries[0].points);
 	t.ok(Array.isArray(pixelSeries));
 	t.deepEqual(pixelSeries[0].points[0], { x: 0, y: 25 });
 	t.deepEqual(pixelSeries[1].points[0], { x: 0, y: 75 }); //(1+2)/4 * 100
@@ -99,8 +98,8 @@ test('isPointInside', function(t){
 });
 
 test('getSeriesIndexFromPoint', function(t){
-	t.equal(data.getSeriesIndexFromPoint(this.x.map(0), 100, data.findClosestXPointIndex(0)), 0);
-	t.equal(data.getSeriesIndexFromPoint(this.x.map(0), 50, data.findClosestXPointIndex(0)), 1);
+	t.equal(data.getSeriesIndexFromPoint(data.x.map(0), 100, data.findClosestXPointIndex(0)), 0);
+	t.equal(data.getSeriesIndexFromPoint(data.x.map(0), 50, data.findClosestXPointIndex(0)), 1);
 	t.end();
 });
 
