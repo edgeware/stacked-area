@@ -1,6 +1,8 @@
 # Stacked-area
 Stacked-area is a graphing component for creating stacked area visualizations of data.
 
+[![Build Status](https://secure.travis-ci.org/karlbohlmark/stacked-area.png)](http://travis-ci.org/karlbohlmark/stacked-area)
+
 ## Getting started
 
 To instantiate a graph, you need to provide
@@ -51,4 +53,5 @@ Highlight a contiguous subset of the domain of the graph
 ##### StackedGraph.prototype.draw()
 
 Draw or redraw the graph
+
 
