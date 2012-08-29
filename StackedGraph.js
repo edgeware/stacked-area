@@ -5,6 +5,8 @@ var CanvasRenderer = require('./CanvasRenderer');
 var Emitter = require('./Emitter');
 var GraphData = require('./GraphData');
 
+var normalizeEvent = require('./normalizeEvent');
+
 /**
  Export StackedGraph constructor
  */
@@ -107,6 +109,7 @@ StackedGraph.prototype.createCanvas = function(parent, width, height) {
  * @api private
  */
 StackedGraph.prototype.configureForGecko = function() {
+
     this.mousewheelevent = 'DOMMouseScroll';
     this.zoomFactorFromMouseEvent = function(e) {
         return -e.detail / 15 + 1;
@@ -124,6 +127,7 @@ StackedGraph.prototype.mousewheelevent = 'mousewheel';
  */
 StackedGraph.prototype.initZoom = function() {
     this.elem.addEventListener(this.mousewheelevent, function(e) {
+        normalizeEvent(e, this.elem);
         var zoomFactor = this.zoomFactorFromMouseEvent(e);
         this.data.zoom(zoomFactor, e.offsetX);
         this.triggerZoom();
@@ -141,6 +145,7 @@ StackedGraph.prototype.initPan = function() {
         elem = this.elem,
         panStart;
     var panMove = function(move) {
+            normalizeEvent(move, _this.elem);
             var panOffset = move.offsetX - panStart;
             _this.data.pan(panOffset - panned);
             _this.triggerPan(_this.data.x.l());
@@ -205,17 +210,26 @@ StackedGraph.prototype.initHighlightTracking = function() {
     this.canvas.addEventListener('mousemove', this.highlightMouseMove.bind(this));
     var _this = this;
     this.canvas.addEventListener('mouseout', function() {
-        if (_this.data.highlightSeries(null)) {
-            _this.highlightedSeries = null;
-            _this.draw();
-        }
+        _this.highlightSeries(null);
     });
     this.on('mouseOverSeries', function(eventData) {
-        if (_this.data.highlightSeries(eventData.series)) {
-            _this.highlightedSeries = eventData.series;
-            _this.draw();
-        }
+        _this.highlightSeries(eventData.series);
     });
+    this.on('noValueInRange', function(){
+        _this.highlightSeries(null);
+    });
+};
+
+/**
+ * Highlight a series, or remove highlight if series param is null
+ * @api private
+ */
+StackedGraph.prototype.highlightSeries = function(series){
+    if( series !== this.highlightedSeries) {
+        this.data.highlightSeries(series);
+        this.highlightedSeries = series;
+        this.draw();
+    }
 };
 
 /**
@@ -231,15 +245,21 @@ StackedGraph.prototype.getHighlightedSeries = function() {
  * @api private
  */
 StackedGraph.prototype.highlightMouseMove = function(e) {
+    normalizeEvent(e, this.elem);
     var x = e.offsetX;
     var y = e.offsetY;
 
     var xIndex = this.data.findClosestXPointIndex(x);
+    var pixel = this.data.pixelSeriesArr[0].points[xIndex];
+    if ( pixel.x < 0 || pixel.x > this.width ) {
+        return this.trigger('noValueInRange');
+    }
+
     var series = this.data.getSeriesIndexFromPoint(x, y, xIndex);
 
     var movementData = {
         x: this.data.series[0].points[xIndex].x,
-        xpxl: this.data.pixelSeriesArr[0].points[xIndex].x,
+        xpxl: pixel.x,
         i: xIndex
     };
     

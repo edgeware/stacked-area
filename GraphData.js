@@ -235,7 +235,7 @@ GraphData.prototype.findClosestXPointIndex = function(x, points) {
 		}
 		last = next;
 	}
-	throw ('Did not find point closest by x');
+	return next;
 };
 
 GraphData.prototype.isPointInside = function(x, y, points, xIndex) {
