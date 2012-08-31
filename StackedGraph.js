@@ -308,7 +308,6 @@ StackedGraph.prototype.highlightTracking = function(){
                 },
                 mouseout: function(e){
                     var offset = mouseOffset(e, this.graph.canvas);
-                    console.log('mouseout', offset.x, offset.y);
                     if(offset.x<this.graph.width && offset.y<this.graph.height){
                         _this.highlightSeries(null);
                     }
