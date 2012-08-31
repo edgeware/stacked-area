@@ -5,12 +5,53 @@ var CanvasRenderer = require('./CanvasRenderer');
 var Emitter = require('./Emitter');
 var GraphData = require('./GraphData');
 
-var normalizeEvent = require('./normalizeEvent');
+var mouseOffset = require('./mouseOffset');
 
 /**
  Export StackedGraph constructor
  */
 module.exports = StackedGraph;
+
+
+function StateMachine(description, name){
+        for(var prop in description){
+            this[prop] = description[prop];
+        }
+        this.name = name;
+    }
+
+    StateMachine.prototype.transition = function(toState){
+        console.log('transition', this.name, this.id,'from', this.state, 'to', toState);
+        this.state = toState;
+    };
+
+    function MouseMachine(eventSource, /*params*/ machines){
+        var args = Array.prototype.slice.call(arguments, 1);
+        this.machines = args;
+        for(var i in this.events){
+            var eventName = this.events[i];
+            eventSource.on(eventName, this.handle.bind(this, eventName));
+        }
+    }
+
+    MouseMachine.prototype.events = ['mousedown', 'mouseup', 'mousemove', 'mousewheel', 'mouseout'];
+    MouseMachine.prototype.handle = function(eventName, e){
+        for(var i in this.machines){
+            var machine = this.machines[i];
+            var state = machine.states[machine.state];
+            if(machine.name=='panning') {
+                console.log(machine.name, machine.id, machine.state, eventName, e.redispatched);
+            }
+            if(machine.name=='zooming'){
+                console.log(machine.name, machine.id, machine.state, eventName, e.redispatched);
+            }
+            var handler = state[eventName];
+            if(handler){
+                handler.call(machine, e);
+            }
+        }
+    };
+
 
 /**
  * Instantiate a StackedGraph
@@ -23,16 +64,14 @@ module.exports = StackedGraph;
  */
 function StackedGraph(elem, series, options) {
     Emitter.call(this);
-    this.options = options;
-    this.elem = elem;
-    this.width = options.width || elem.clientWidth;
-    this.height = options.height || elem.clientHeight;
-
-    this.canvas = this.createCanvas(elem, this.width, this.height);
-    this.offsetLeft = this.canvas.offsetLeft;
-    this.offsetTop = this.canvas.offsetTop;
-    this.canvasRenderer = new CanvasRenderer(
-        this.canvas, series, {
+        this.options = options;
+        this.elem = elem;
+        this.width = options.width || elem.clientWidth;
+        this.height = options.height || elem.clientHeight;
+        this.canvas = this.createCanvas(elem, this.width, this.height);
+        this.offsetLeft = this.canvas.offsetLeft;
+        this.offsetTop = this.canvas.offsetTop;
+        this.canvasRenderer = new CanvasRenderer(this.canvas, series, {
             width: this.width,
             height: this.height,
             ymax: options.inverted ? 0 : this.height,
@@ -40,29 +79,35 @@ function StackedGraph(elem, series, options) {
             inverted: options.inverted,
             stroke: options.stroke || 'black',
             highlightRegionColor: options.highlightRegionColor || 'rgba(255, 0, 0, .3)'
+        });
+
+        if (typeof elem.onmousewheel !== 'object') {
+            this.configureForGecko();
         }
-    );
 
-    this.panOffset = 0;
+        if (series && Array.isArray(series) && series.length > 0) {
+            this.data = new GraphData(series, {
+                x: this.width,
+                y: this.height
+            }, options);
+            this.draw();
+        } else {
+            console.error('initialize StackedGraph without data');
+        }
+        
+        var _this = this;
+        var eventSource = {
+            on: function(event, callback){
+                _this.canvas.addEventListener(event, callback);
+            }
+        };
 
-    if (typeof elem.onmousewheel !== 'object') {
-        this.configureForGecko();
-    }
-
-    if (series && Array.isArray(series) && series.length > 0) {
-        this.data = new GraphData(series, {
-            x: this.width,
-            y: this.height
-        }, options);
-        this.draw();
-    } else {
-        console.error('initialize StackedGraph without data');
-    }
-
-    this.initZoom();
-    this.initPan();
-    this.initHighlightTracking();
-
+        this.mouseMachine = new MouseMachine(
+            eventSource,
+            this.panning(),
+            this.highlightTracking(),
+            this.zooming()
+        );
 }
 
 /**
@@ -125,47 +170,67 @@ StackedGraph.prototype.mousewheelevent = 'mousewheel';
  * Hook up zooming with mouse wheel
  * @api private
  */
-StackedGraph.prototype.initZoom = function() {
-    this.elem.addEventListener(this.mousewheelevent, function(e) {
-        normalizeEvent(e, this.elem);
-        var zoomFactor = this.zoomFactorFromMouseEvent(e);
-        this.data.zoom(zoomFactor, e.offsetX);
-        this.triggerZoom();
-        this.draw();
-        e.preventDefault();
-    }.bind(this));
-};
+StackedGraph.prototype.zooming = function () {
+        var states = {
+            started: {}
+        };
+        states.started[this.mousewheelevent] = function (e) {
+            var offset = mouseOffset(e, this.graph.elem);
+            var zoomFactor = this.graph.zoomFactorFromMouseEvent(e);
+            this.graph.data.zoom(zoomFactor, e.x);
+            this.graph.triggerZoom();
+            this.graph.draw();
+            e.preventDefault();
+        };
+        return new StateMachine({
+            graph: this,
+            state: 'started',
+            states: states
+        }, 'zooming');
+    };
 
 /**
  * Enable panning by click and drag
  * @api private
  */
-StackedGraph.prototype.initPan = function() {
-    var _this = this,
-        elem = this.elem,
-        panStart;
-    var panMove = function(move) {
-            normalizeEvent(move, _this.elem);
-            var panOffset = move.offsetX - panStart;
-            _this.data.pan(panOffset - panned);
-            _this.triggerPan(_this.data.x.l());
-            panned += (panOffset - panned);
-            return _this.draw();
-        };
-    var panUp = function(move) {
-            elem.removeEventListener('mousemove', panMove);
-            elem.removeEventListener('mouseout', panUp);
-            return elem.removeEventListener('mouseup', panUp);
-        };
-    var panDown = function(down) {
-            panStart = down.offsetX;
-            panned = 0;
-            elem.addEventListener('mousemove', panMove);
-            elem.addEventListener('mouseout', panUp);
-            return elem.addEventListener('mouseup', panUp);
-        };
-
-    return this.elem.addEventListener('mousedown', panDown);
+StackedGraph.prototype.panning = function(){
+    console.log('initialize panning state maching');
+    return new StateMachine({
+        /* State data */
+        panned: 0,
+        panStart: void(0),
+        graph: this,
+        /* <--------- */
+        state: 'stopped',
+        id: Math.random(),
+        states: {
+            stopped: {
+                mousedown: function(down){
+                    var offset = mouseOffset(down, this.graph.elem);
+                    panStart = offset.x;
+                    panned = 0;
+                    this.transition('panning');
+                }
+            },
+            panning: {
+                mousemove: function(move){
+                    var offset = mouseOffset(move, this.graph.elem);
+                    var panOffset = move.x - panStart;
+                    console.log('PAN');
+                    this.graph.data.pan(panOffset - panned);
+                    this.graph.triggerPan(this.graph.data.x.l());
+                    panned += panOffset - panned;
+                    return this.graph.draw();
+                },
+                mouseup: function(){
+                    this.transition('stopped');
+                },
+                mouseout: function(){
+                    this.transition('stopped');
+                }
+            }
+        }
+    }, 'panning');
 };
 
 /**
@@ -206,18 +271,47 @@ StackedGraph.prototype.triggerZoom = function() {
  * Enable tracking of which series the user is hoovering over
  * @api private
  */
-StackedGraph.prototype.initHighlightTracking = function() {
-    this.canvas.addEventListener('mousemove', this.highlightMouseMove.bind(this));
+StackedGraph.prototype.highlightTracking = function(){
     var _this = this;
-    this.canvas.addEventListener('mouseout', function() {
-        _this.highlightSeries(null);
-    });
-    this.on('mouseOverSeries', function(eventData) {
+    this.on('mouseOverSeries', function(eventData){
         _this.highlightSeries(eventData.series);
     });
-    this.on('noValueInRange', function(){
+    this.on('noValueInRange', function () {
         _this.highlightSeries(null);
     });
+    return new StateMachine({
+        state: 'started',
+        graph: this,
+        states: {
+            'started': {
+                mousemove: function(e){
+                    var offset = mouseOffset(e, this.graph.elem);
+                    var x = offset.x;
+                    var y = offset.y;
+                    var xIndex = this.graph.data.findClosestXPointIndex(x);
+                    var pixel = this.graph.data.pixelSeriesArr[0].points[xIndex];
+                    if (pixel.x < 0 || pixel.x > this.graph.width) {
+                        return this.graph.trigger('noValueInRange');
+                    }
+                    var series = this.graph.data.getSeriesIndexFromPoint(x, y, xIndex);
+                    var movementData = {
+                            x: this.graph.data.series[0].points[xIndex].x,
+                            xpxl: pixel.x,
+                            i: xIndex
+                        };
+                    var seriesName = series !== null ? this.graph.data.series[series].name : null;
+                    this.graph.trigger('mouseOverSeries', {
+                        series: seriesName
+                    });
+                    this.graph.trigger('markerMove', movementData);
+                },
+                mouseout: function(e){
+                    var offset = mouseOffset(e, this.graph.canvas);
+                    //_this.highlightSeries(null);
+                }
+            }
+        }
+    }, 'highlight');
 };
 
 /**
@@ -245,9 +339,9 @@ StackedGraph.prototype.getHighlightedSeries = function() {
  * @api private
  */
 StackedGraph.prototype.highlightMouseMove = function(e) {
-    normalizeEvent(e, this.elem);
-    var x = e.offsetX;
-    var y = e.offsetY;
+    var offset = mouseOffset(e, this.elem);
+    var x = offset.x;
+    var y = offset.y;
 
     var xIndex = this.data.findClosestXPointIndex(x);
     var pixel = this.data.pixelSeriesArr[0].points[xIndex];
