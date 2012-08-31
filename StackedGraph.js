@@ -21,7 +21,7 @@ function StateMachine(description, name){
     }
 
     StateMachine.prototype.transition = function(toState){
-        console.log('transition', this.name, this.id,'from', this.state, 'to', toState);
+        //console.log('transition', this.name, this.id,'from', this.state, 'to', toState);
         this.state = toState;
     };
 
@@ -39,12 +39,13 @@ function StateMachine(description, name){
         for(var i in this.machines){
             var machine = this.machines[i];
             var state = machine.states[machine.state];
+            /*
             if(machine.name=='panning') {
                 console.log(machine.name, machine.id, machine.state, eventName, e.redispatched);
             }
             if(machine.name=='zooming'){
                 console.log(machine.name, machine.id, machine.state, eventName, e.redispatched);
-            }
+            }*/
             var handler = state[eventName];
             if(handler){
                 handler.call(machine, e);
@@ -177,7 +178,7 @@ StackedGraph.prototype.zooming = function () {
         states.started[this.mousewheelevent] = function (e) {
             var offset = mouseOffset(e, this.graph.elem);
             var zoomFactor = this.graph.zoomFactorFromMouseEvent(e);
-            this.graph.data.zoom(zoomFactor, e.x);
+            this.graph.data.zoom(zoomFactor, offset.x);
             this.graph.triggerZoom();
             this.graph.draw();
             e.preventDefault();
@@ -307,7 +308,10 @@ StackedGraph.prototype.highlightTracking = function(){
                 },
                 mouseout: function(e){
                     var offset = mouseOffset(e, this.graph.canvas);
-                    //_this.highlightSeries(null);
+                    console.log('mouseout', offset.x, offset.y);
+                    if(offset.x<this.graph.width && offset.y<this.graph.height){
+                        _this.highlightSeries(null);
+                    }
                 }
             }
         }
