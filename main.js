@@ -3,11 +3,36 @@ var metricAdapter = require('./metricAdapter');
 var metrics = require('./test/metrics');
 
 
-
-if(document.location.search){
+var search = document.location.search || '';
+if(search.indexOf('simple')!==-1){
 	simpleExample();
-}else{
+}else if (search.indexOf('undef')!==-1) {
+	undefinedExample();
+}
+else {
 	realData();
+}
+
+
+
+function undefinedExample(){
+	var series = [{
+	name: 'series1',
+	color: 'green',
+	highlightColor: 'red',
+	points: [
+			{x:0, y:1},
+			{x:1, y:2},
+			{x:2, y:void(0)},
+			{x:3, y:void(0)},
+			{x:4, y:void(0)},
+			{x:5, y:void(0)}
+
+		]
+	}];
+
+	var elem = document.getElementById('graph1');
+	var graph1 = new CanvasGraph(elem, series, { width: 600, height: 350, inverted: false });
 }
 
 
@@ -44,11 +69,11 @@ function simpleExample(){
 function realData(){
 	var elem = document.getElementById('graph1');
 	var netin = metricAdapter(metrics, 'net_in');
-	var graph1 = new CanvasGraph(elem, netin, { width: 600, height: 350, inverted: true });
+	var graph1 = new CanvasGraph(elem, netin, { width: 600, height: 350, inverted: true, dispatchByCoordinates: false });
 	graph1.draw();
 	var netout = metricAdapter(metrics, 'net_in');
 	var netoutEl = document.getElementById('graph2');
-	var graph2 = new CanvasGraph(netoutEl, netout, { width: 600, height: 350 });
+	var graph2 = new CanvasGraph(netoutEl, netout, { width: 600, height: 350, dispatchByCoordinates: false });
 
 	/*
 	graph1.on('pan', function(amount){
@@ -65,11 +90,10 @@ function realData(){
 		graph4.zoomTo(domain);
 		graph5.zoomTo(domain);
 		graph6.zoomTo(domain);
-		console.log('zoom to ', domain);
 	});
 
 	graph1.on('markerMove', function(m){
-		console.log('m', m);
+		
 	});
 
 	graph2.draw();

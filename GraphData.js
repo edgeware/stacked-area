@@ -32,7 +32,7 @@ function GraphData(series, pixelRange, options) {
 	var minZoomFactor = options.minZoomFactor || 1 / 10;
 	var maxZoomFactor = options.minZoomFactor || series[0].points.length;
 	
-	this.y = new LinearEquation(-pixelRange.y / this.ymax, pixelRange.y);
+	this.y = new LinearEquation(-pixelRange.y / this.ymax, pixelRange.y + (options.inverted ? -1 : 1) );
 
 	if (options.inverted) this.y.setSlopeAtPoint(-this.y.k(), this.ymax/2);
 
@@ -178,6 +178,9 @@ GraphData.prototype.getValue = function(x) {
 	}
 
 	var xIndex = this.findClosestXPointIndex(x, this.series[0].points);
+	if(!xIndex){
+		return void(0);
+	}
 
 	if (seriesIndex !== null) return this.getValueOfSeriesAtPoint(seriesIndex, xIndex);
 	else return this.getCombinedValueAtPoint(xIndex);
@@ -276,12 +279,11 @@ GraphData.prototype.getValueOfSeriesAtPoint = function(seriesIndex, xIndex) {
 };
 
 GraphData.prototype.getCombinedValueAtPoint = function(xIndex) {
-	if (!this.pixelSeriesArr) {
-		this.pixelSeriesArr = this.getPixelSeries();
+	var val = 0;
+	for(var i = 0; i<this.series.length; i++) {
+		val += this.series[i].points[xIndex].y;
 	}
-	var points = this.pixelSeriesArr[this.pixelSeriesArr.length - 1].points;
-	var point = points[xIndex];
-	return this.y.invert(point.y);
+	return val;
 };
 
 module.exports = GraphData;

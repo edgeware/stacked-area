@@ -1,3 +1,4 @@
+#!/usr/bin/env casperjs
 var casper = require('casper').create();
 
 casper.start('http://localhost:8383', function() {
