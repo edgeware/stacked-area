@@ -14,7 +14,8 @@
     "state-machine.js",
     "mouse-offset.js",
     "linear-equation.js",
-    "stacked-graph.js"
+    "stacked-graph.js",
+    "canvas-renderer.js"
   ],
   "main": "stacked-graph.js"
 }
