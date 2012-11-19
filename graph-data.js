@@ -1,5 +1,5 @@
-var LinearEquation = require('./LinearEquation');
-var Emitter = require('./Emitter');
+var LinearEquation = require('./linear-equation');
+var Emitter = require('./emitter');
 
 /**
  * Instantiate a GraphData object encapsulating the data series
