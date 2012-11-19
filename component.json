@@ -1,0 +1,20 @@
+{
+  "name": "stacked-area",
+  "repo": "karlbohlmark/stacked-area",
+  "description": "Stacked graphs on canvas",
+  "version": "0.0.1",
+  "keywords": [],
+  "dependencies": {},
+  "development": {},
+  "license": "MIT",
+  "scripts": [
+    "emitter.js",
+    "graph-data.js",
+    "mouse-event-dispatcher.js",
+    "state-machine.js",
+    "mouse-offset.js",
+    "linear-equation.js",
+    "stacked-graph.js"
+  ],
+  "main": "stacked-graph.js"
+}

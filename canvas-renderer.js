@@ -36,6 +36,7 @@ CanvasRenderer.prototype.drawSeries = function(points, color) {
 	if (!points.length) return;
 
 	this.ctx.fillStyle = color;
+	this.ctx.lineWidth = 1;
 	this.ctx.beginPath();
 
 	this.ctx.moveTo(points[0].x, points[0].y);
