@@ -1,14 +1,14 @@
 /**
  * Dependencies
  */
-var CanvasRenderer = require('./CanvasRenderer');
-var Emitter = require('./Emitter');
-var GraphData = require('./GraphData');
-var StateMachine = require('./StateMachine');
-var MouseEventDispatcher = require('./MouseEventDispatcher');
+var CanvasRenderer = require('./canvas-renderer');
+var Emitter = require('./emitter');
+var GraphData = require('./graph-data');
+var StateMachine = require('./state-machine');
+var MouseEventDispatcher = require('./mouse-event-dispatcher');
 
-var mouseOffset = require('./mouseOffset');
-var elementOffset = require('./elementOffset');
+var mouseOffset = require('./mouse-offset');
+var elementOffset = require('./element-offset');
 
 /**
  Export StackedGraph constructor
@@ -77,6 +77,9 @@ function StackedGraph(elem, series, options) {
             this.highlightTracking(),
             this.zooming()
         );
+
+        if (!options.noInteraction)
+            this.mouseMachine = new MouseEventDispatcher(eventSource, this.panning(), this.highlightTracking(), this.zooming());
 }
 
 /**
@@ -392,4 +395,12 @@ StackedGraph.prototype.zoomFactorFromMouseEvent = function(e) {
  */
 StackedGraph.prototype.draw = function() {
     this.canvasRenderer.draw(this.data.getPixelSeries(), this.data.getHighlightRegion());
+};
+
+/**
+ * Clear the graph
+ * @api public
+ */
+StackedGraph.prototype.clear = function() {
+    this.canvasRenderer.clear();
 };
