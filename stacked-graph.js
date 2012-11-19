@@ -8,7 +8,7 @@ var StateMachine = require('./state-machine');
 var MouseEventDispatcher = require('./mouse-event-dispatcher');
 
 var mouseOffset = require('./mouse-offset');
-var elementOffset = require('./element-offset');
+
 
 /**
  Export StackedGraph constructor
