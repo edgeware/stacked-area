@@ -32,7 +32,7 @@ function GraphData(series, pixelRange, options) {
 	var minZoomFactor = options.minZoomFactor || 1 / 10;
 	var maxZoomFactor = options.minZoomFactor || series[0].points.length;
 	
-	this.y = new LinearEquation(-pixelRange.y / this.ymax, pixelRange.y + (options.inverted ? -1 : 1) );
+	this.y = new LinearEquation(-pixelRange.y / this.ymax, pixelRange.y );
 
 	if (options.inverted) this.y.setSlopeAtPoint(-this.y.k(), this.ymax/2);
 

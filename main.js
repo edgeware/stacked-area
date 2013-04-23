@@ -1,19 +1,67 @@
-var CanvasGraph = require('./StackedGraph');
-var metricAdapter = require('./metricAdapter');
+var CanvasGraph = require('./stacked-graph');
+var metricAdapter = require('./metric-adapter');
 var metrics = require('./test/metrics');
 
 
 var search = document.location.search || '';
-if(search.indexOf('simple')!==-1){
-	simpleExample();
-}else if (search.indexOf('undef')!==-1) {
-	undefinedExample();
-}
-else {
-	realData();
+
+var examples = {
+	'simple': simpleExample,
+	'undef': undefinedExample,
+	'extreme': extremeExample,
+	'fraction': fractionExample
 }
 
+Object.keys(examples)
+	.some(function (example) {
+		return search.indexOf(example)!==-1 && examples[example]()|1
+	}) || realData()
 
+function extremeExample(){
+	var series = [{
+	name: 'series1',
+	color: 'green',
+	highlightColor: 'red',
+	points: [
+			{x:0, y:0},
+			{x:1, y:0},
+			{x:2, y:50},
+			{x:3, y:50},
+			{x:4, y:100},
+			{x:5, y:100}
+		]
+	}];
+
+	var elem = document.getElementById('graph1');
+	var graph1 = new CanvasGraph(elem, series, { width: 200, height: 100, inverted: false });
+}
+
+function fractionExample(){
+	var series = [{
+	name: 'series1',
+	color: 'green',
+	highlightColor: 'red',
+	points: [
+			{x:0, y:0},
+			{x:1, y:0},
+			{x:2, y:50},
+			{x:3, y:50},
+			{x:4, y:99},
+			{x:5, y:99},
+			{x:6, y:99.4},
+			{x:7, y:99.4},
+			{x:8, y:99.5},
+			{x:9, y:99.5},
+			{x:10, y:99.8},
+			{x:11, y:99.8},
+			{x:12, y:100},
+			{x:13, y:100}
+		]
+	}];
+
+	var elem = document.getElementById('graph1');
+	var graph1 = new CanvasGraph(elem, series, { width: 200, height: 100, inverted: false });
+}
 
 function undefinedExample(){
 	var series = [{

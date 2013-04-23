@@ -51,7 +51,7 @@ CanvasRenderer.prototype.drawSeries = function(points, color) {
 			continue;
 		}
 		if(typeof point.y === 'number'){
-			this.ctx.lineTo(point.x, point.y);
+			this.ctx.lineTo(point.x, Math.max(point.y,0.5));
 			lastDefined = i;
 		}else{
 			this.ctx.moveTo(point.x, point.y);

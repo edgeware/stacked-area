@@ -5,7 +5,7 @@ all: example docs
 build:
 	rm -rf build
 	mkdir build
-	porter StackedGraph.js --prefix __ -o build/StackedGraph.combined.js
+	porter stacked-graph.js --prefix __ -o build/StackedGraph.combined.js
 example:
 	porter main.js -o out.js
 test:

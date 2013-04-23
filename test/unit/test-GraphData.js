@@ -1,4 +1,5 @@
-var GraphData = require('../../GraphData');
+var GraphData = require('../../graph-data');
+
 var test = require('tap').test;
 
 var series = [{

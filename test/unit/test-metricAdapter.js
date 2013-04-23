@@ -1,7 +1,7 @@
 var test = require('tap').test;
 
 var metrics = require('../testData/metrics');
-var metricAdapter = require('../../metricAdapter');
+var metricAdapter = require('../../metric-adapter');
 /*
 test('can construct series from timestamps and values', function(t){
 	var timestamp1 = new Date();

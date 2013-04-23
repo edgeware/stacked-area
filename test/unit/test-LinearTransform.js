@@ -1,6 +1,6 @@
 var test = require('tap').test;
 
-var LinearTransform = require('../../LinearEquation');
+var LinearTransform = require('../../linear-equation');
 
 test('can be constructed with slope and offset', function(t){
 	var scale = new LinearTransform(3, 10);
