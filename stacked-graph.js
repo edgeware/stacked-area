@@ -71,15 +71,14 @@ function StackedGraph(elem, series, options) {
             }
         };
 
-        this.mouseMachine = new MouseEventDispatcher(
-            eventSource,
-            this.panning(),
-            this.highlightTracking(),
-            this.zooming()
-        );
-
-        if (!options.noInteraction)
-            this.mouseMachine = new MouseEventDispatcher(eventSource, this.panning(), this.highlightTracking(), this.zooming());
+        if (!options.noInteraction) {
+            this.mouseMachine = new MouseEventDispatcher(
+                eventSource,
+                this.panning(),
+                this.highlightTracking(),
+                this.zooming()
+            );
+        }
 }
 
 /**
