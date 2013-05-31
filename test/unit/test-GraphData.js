@@ -21,6 +21,24 @@ var series = [{
 stacked: [x:0, y:3] [x:1, y:4]
 */
 
+var seriesUndefined = [{
+	name: 'series1',
+	color: 'red',
+	points: [
+		{x:0, y:1}, // -> {x:0, y:75}
+		{x:1, y:2}  // -> {x:100, y:50}
+	]
+}, {
+	name: 'series2',
+	color: 'black',
+	points: [
+		{x:0, y:2},	// -> {x:0, y:3} -> {x:0, y:25}
+		{x:1, y:undefined}  // -> {x:1, y:4} -> {x:100, y:0}
+	]
+}];
+
+var undefinedData = new GraphData(seriesUndefined, {x: 100, y: 100}, {});
+
 var data = new GraphData(series, {x: 100, y: 100}, {});
 var inverted = new GraphData(series, {x: 100, y: 100}, {inverted: true});
 
@@ -113,5 +131,7 @@ test('getValueOfSeriesAtPoint', function(t){
 
 test('getCombinedValueAtPoint', function(t){
 	t.equal(data.getCombinedValueAtPoint(0), 3);
+	t.equal(undefinedData.getCombinedValueAtPoint(1), 2);
 	t.end();
 });
+

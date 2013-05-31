@@ -182,9 +182,11 @@ GraphData.prototype.getValue = function(x) {
 		return void(0);
 	}
 
-	if (seriesIndex !== null) return this.getValueOfSeriesAtPoint(seriesIndex, xIndex);
-	else return this.getCombinedValueAtPoint(xIndex);
-	return;
+	if (seriesIndex !== null) {
+		return this.getValueOfSeriesAtPoint(seriesIndex, xIndex);
+	} else {
+		return this.getCombinedValueAtPoint(xIndex);
+	}
 };
 
 GraphData.prototype.getMaxX = function(series /*plural*/ ) {
@@ -279,9 +281,9 @@ GraphData.prototype.getValueOfSeriesAtPoint = function(seriesIndex, xIndex) {
 };
 
 GraphData.prototype.getCombinedValueAtPoint = function(xIndex) {
-	var val = 0;
+	var val = 0, yval;
 	for(var i = 0; i<this.series.length; i++) {
-		val += this.series[i].points[xIndex].y;
+		val += this.series[i].points[xIndex].y || 0;
 	}
 	return val;
 };
